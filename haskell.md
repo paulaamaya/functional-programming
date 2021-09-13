@@ -341,4 +341,11 @@ zip xs ys
 
 It's especially useful for when you want to combine two lists in a way or traverse two lists simultaneously. 
 
+If the two list lengths don't match, the longer list simply gets cut off to match the length of the shorter one.
 
+```hs
+xs = [1..]
+ys = [1,2,3,4]
+zip xs ys
+-- [(1,1),(2,2),(3,3),(4,4)]
+```
