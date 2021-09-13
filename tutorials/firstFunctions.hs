@@ -9,3 +9,5 @@ processNumber x = doubleSmallNumber x + 1
 
 boomBangList :: Integral a => [a] -> [String]
 boomBangList xs = [if x < 5 then "PEW!" else "BANG!" | x <- xs, odd x]
+
+matrix = [(1,2), (3,4), (1,1)]
