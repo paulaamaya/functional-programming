@@ -2,9 +2,10 @@
   - [Conditional Statements](#conditional-statements)
   - [Chaining Tests: `cond` Operator](#chaining-tests-cond-operator)
   - [Logical Operators](#logical-operators)
-- [Lists](#lists)
 - [Functions](#functions)
   - [Anonymous Functions](#anonymous-functions)
+- [Lists](#lists)
+  - [List Functions](#list-functions)
 
 # Basics
 
@@ -105,10 +106,6 @@ The `and` short-circuits, it stops and returns `#f` when an expression produces 
 
 Furthermore, both logical operators work with any number of expressions.
 
-# Lists
-
-
-
 # Functions
 
 Function calls are perfomed within parentheses - opening parentheses, calling the function, then passing parameters, all separated by spaces.
@@ -184,4 +181,80 @@ Another use for lambdas is when you want to **define a function that produces an
 (define exclamation (makePrefix "!"))
 (exclamation "Hello")
 ; "Hello!"
+```
+
+# Lists
+
+ The `list` function takes any number of values and returns a list containing the values.
+
+ ```rkt
+(list 1 2 3)
+; '(1 2 3)
+; A list usually prints with ' at the beginning
+ ```
+
+ Lists in Racket **need not be homogenous**, i.e. they can store values of multiple data types.
+
+ ## List Functions
+
+ Here are examples of a few built-in functions for lists (**Note:** None of these functions mutate the original list):
+
+ ```rkt
+(define l (list "jab" "hook" "cross"))
+
+; length of a list
+(length l)
+; 3
+
+; index list
+(list-ref l 2)
+"cross"
+
+; append to list
+(append l (list "uppercut"))
+; '("jab" "hook" "cross" "uppercut")
+
+; reverse a list
+(reverse l)
+; '("cross" "hook" "jab")
+
+; check if an element is in the list
+(member "weave" l)
+; #f
+
+; original list has not changed
+l
+; '("jab" "hook" "cross")
+ ```
+
+ Additionally, Racket comes with some functions that iterate over the elements of a list. The **body of a list iteration must be packaged into a function that is applied to each element**, so `lambda` expressions become super important.  
+
+ The `map` function applies `f` to all elements of the list, and returns a new list containing each result of `f` in order.  It can take in more than one list at a time, given that the following hold:
+ - The number of parameters `f` takes must be equal to the number of lists passed.
+ - All lists must have the same number of elements.
+
+```rkt
+(define xs (list 1 2 3 4))
+(define ys (list 10 20 30 40))
+
+(map (lambda (n1 n2) (+ n1 n2)) xs ys)
+; '(11 22 33 44)
+```
+
+The `andmap` function is equivalent to JavaScript's `every()`, while the `ormap` function is equvialent to `some()`.
+
+```rkt
+(define zs (list 1 2 3 "hello"))
+
+(andmap number? zs)
+; #f
+(ormap number? zs)
+; #t
+```
+
+The `filter` function only keeps elements for which the body result is true, and gets rid of those for which it is false:
+
+```rkt
+(filter number? zs)
+; '(1 2 3)
 ```
