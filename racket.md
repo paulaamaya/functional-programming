@@ -2,6 +2,7 @@
   - [Conditional Statements](#conditional-statements)
   - [Chaining Tests: `cond` Operator](#chaining-tests-cond-operator)
   - [Logical Operators](#logical-operators)
+- [Lists](#lists)
 - [Functions](#functions)
   - [Anonymous Functions](#anonymous-functions)
 
@@ -104,6 +105,10 @@ The `and` short-circuits, it stops and returns `#f` when an expression produces 
 
 Furthermore, both logical operators work with any number of expressions.
 
+# Lists
+
+
+
 # Functions
 
 Function calls are perfomed within parentheses - opening parentheses, calling the function, then passing parameters, all separated by spaces.
@@ -120,7 +125,7 @@ Function calls are perfomed within parentheses - opening parentheses, calling th
 The syntax to define a function is as follows:
 
 ```rkt
-(define (functionName param1 param2...)
+(define (functionName <param>*...)
     (<expr>)*)
 ```
 
@@ -138,4 +143,45 @@ This can cause some problematic side-effects so Racket programmers prefer to onl
 
 ## Anonymous Functions
 
-In Racket, you can use a `lambda` expression to produce a function directly. A lambda expression follows the following syntax.
+Consider a function that takes in another function and an argument,
+
+```rkt
+; Takes in a function and an argument, applies f two times to the argument
+(define (twice f n)
+    (f (f n)))
+
+```
+
+```rkt
+; An function that we can pass to twice
+(define (double n)
+    (* n 2))
+
+(twice double 5)
+; 20
+```
+
+In Racket, you can use a `lambda` expression to produce a function directly. A lambda expression follows the following syntax:
+
+```rkt
+(lambda (<param>*) <expr>+)
+```
+
+If you are **only using a function once**, it is really convenient to define a `lambda` expression the moment that you need it! For instance, the example above can be simplified by,
+
+```rkt
+(twice (lambda (n) (* n 2)) 5)
+; 20
+```
+
+Another use for lambdas is when you want to **define a function that produces another function**.  For example,
+
+```rkt
+; Define function that returns lambda function
+(define (makePrefix s2)
+    (lambda (s) (string-append s s2 )))
+
+(define exclamation (makePrefix "!"))
+(exclamation "Hello")
+; "Hello!"
+```
