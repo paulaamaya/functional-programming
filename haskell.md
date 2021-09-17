@@ -70,7 +70,7 @@ Functions are defined similar to how they are called, namey using spaces to deno
 > **Note:** Functions cannot begin with capital letters!
 
 ```
-functionName <param1> <param2> ...= body
+functionName <param>* = <body>
 ```
 
 A common theme in functional programming languages is to define basic functions that are obviosly correct, and then combining them into more complex functions.
@@ -92,7 +92,7 @@ processNumber x = doubleSmallNumber x + 1
  Anonymous functions in Haskell have the following syntax:
 
  ```hs
-\ param1 param2 ... -> body
+\ <param>* ... -> <body>
  ```
 
 ## Bindings
@@ -107,6 +107,21 @@ addOne 4
 -- 5
 x
 -- error: Variable not in scope: x
+```
+
+Apart from organic local bindings in functions, we can explicitly create local bindings in Haskell using the follwoing syntax:
+
+```hs
+let {<id> = <expr>}* in <expr>* 
+```
+
+The bidings that you define in the `let` part are accessible to the expression after the `in`.  For example,
+
+```hs
+cylinderArea :: Floating a => a -> a -> a
+cylinderArea r h =  let sideArea = 2 * pi * r * h
+                        topArea = pi * (r ^ 2)
+                    in sideArea + 2 * topArea
 ```
 
 # Lists

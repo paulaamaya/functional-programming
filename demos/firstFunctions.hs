@@ -14,3 +14,8 @@ matrix = [(1,2), (3,4), (1,1)]
 
 addOne :: Num a => a -> a
 addOne x = x + 1
+
+cylinderArea :: Floating a => a -> a -> a
+cylinderArea r h =  let sideArea = 2 * pi * r * h
+                        topArea = pi * (r ^ 2)
+                    in sideArea + 2 * topArea
