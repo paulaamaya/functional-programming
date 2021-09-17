@@ -173,8 +173,21 @@ In order to concatenate two lists, we use the `++` operator.
 
 Be careful when using the concatenation operator on really long lists since it will be computationally expensive.  Intenally, Haskell has to walk through the entire list on the left before "appending" the new elements.
 
-On the other hand, putting something at the beginning of a list with `:` is automatic.  This is also called cons operator.
+On the other hand, putting something at the beginning of a list with `:` is automatic.  This is also called `cons` operator.
 
+Since Haskell is a functional programming language, we construct lists using a recursive definition with `cons`,
+
+```hs
+l = [3,2,1]
+x = 4
+y =5
+
+xs = x : l
+-- [4,3,2,1]
+
+ys = y : xs
+-- [5,4,3,2,1]
+```
 ```hs
 4 : [0,0,0]
 -- [4,0,0,0]

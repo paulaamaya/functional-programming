@@ -3,6 +3,7 @@
   - [Semantics](#semantics)
 - [Lambda Calculus](#lambda-calculus)
   - [Referential Transparency](#referential-transparency)
+- [Lists and Structural Recursion](#lists-and-structural-recursion)
 
 ---
 
@@ -102,3 +103,23 @@ In programming we say that a **mathematical pure function** is one that meets th
 ## Referential Transparency
 
 Much like in mathematics, identifier bindings in pure functional programming are immutable.  Thus, we say that an identitfier is **referentially transparent** if it can be substituted with its value in the source code without changing the meaning of the program.
+
+# Lists and Structural Recursion
+
+Imperative languages naturally process lists uaing loops, but pure functional programming does not permit the mutation of an index identifier to process each element one at a time.  So we define lists recursively as:
+1. The empty list is a list.
+2. If `x` is a value and `lst` is a list, we can create a new list by combining `x` with the elements of `lst`.
+
+The grammar for creating a list in **Racket** looks like this:
+
+```
+<list> =  'null'| '(' 'cons' <expr> <list> ')'
+```
+
+While the grammar for creating a list in **Haskell** is:
+
+```
+<list> = '[]' | <expr> ':' <list>
+```
+
+This recursive definition of lists tells us, not only about their representation, but also how to operate on them (Hint: It's recursive!)

@@ -251,6 +251,14 @@ Furthermore, both logical operators work with any number of expressions.
  ```rkt
 (define l (list "jab" "hook" "cross"))
 
+; first element of a list
+(first l)
+; "jab"
+
+; all elements of a list but the first
+(rest l)
+; '("hook" "cross")
+
 ; length of a list
 (length l)
 ; 3
@@ -274,6 +282,10 @@ Furthermore, both logical operators work with any number of expressions.
 ; original list has not changed
 l
 ; '("jab" "hook" "cross")
+
+; create a new list using its recursive definition
+(cons "uppercut" l)
+; '("uppercut" "jab" "hook" "cross")
  ```
 
  Additionally, Racket comes with some functions that iterate over the elements of a list. The **body of a list iteration must be packaged into a function that is applied to each element**, so `lambda` expressions become super important.  

@@ -8,3 +8,13 @@
 
 (andmap number? zs)
 (ormap number? zs)
+
+(define (sumList xs)
+        (if (null xs)
+        0
+        (+ (first xs) (sumList (rest xs)))))
+
+(define (maxList xs)
+        (if (null xs) 
+        -inf.0
+        (max (first xs) (maxList (rest xs)))))
