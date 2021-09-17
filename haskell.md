@@ -1,5 +1,8 @@
 - [Functions](#functions)
   - [Defining Functions](#defining-functions)
+  - [Higher Order Functions](#higher-order-functions)
+    - [Anonymous Functions](#anonymous-functions)
+  - [Bindings](#bindings)
 - [Lists](#lists)
   - [Concatenation](#concatenation)
   - [List Functions](#list-functions)
@@ -81,6 +84,30 @@ processNumber x = doubleSmallNumber x + 1
 ```
 
 > **Note:** The `if` statement in Haskell is an expression, which means it must evaluate to a value.  Hence, the `else` is always mandatory; ensuring that if-statements always evaluate to a value.
+
+## Higher Order Functions
+
+### Anonymous Functions
+
+ Anonymous functions in Haskell have the following syntax:
+
+ ```hs
+\ param1 param2 ... -> body
+ ```
+
+## Bindings
+
+So far, most of the bindings we have created are global bindings, using the `<id> = <expr>` syntax.  But like in most languages, there are variables with local scope, most commonly within function bodies.
+
+```hs
+addOne :: Num a => a -> a
+addOne x = x + 1
+
+addOne 4
+-- 5
+x
+-- error: Variable not in scope: x
+```
 
 # Lists
 

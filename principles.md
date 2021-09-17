@@ -2,6 +2,7 @@
   - [Abstract Syntax Trees (ASTs)](#abstract-syntax-trees-asts)
   - [Semantics](#semantics)
 - [Lambda Calculus](#lambda-calculus)
+  - [Referential Transparency](#referential-transparency)
 
 ---
 
@@ -77,3 +78,27 @@ In its basic form, an expression is one of the following:
 3. A **function application** $f\ N$ - This expression applies the function $f$ to lambda expression $N$.
 
 These functions have no concept of time or external state that can affect them.  The only thing we can do is susbtitute the arguments into the function, evaluate the body, and produce a single value.
+
+```racket
+(lambda (<param> ...) <body>)
+```
+
+```haskell
+\ <param> ... -> <body>
+```
+
+```py
+lambda <param> ... : <body>
+```
+
+In programming we say that a **mathematical pure function** is one that meets the following conditions:
+
+1. The function's behaviour is *exactly determined by the value of its inputs*.  Pure functions must be deterministic.
+
+> A **deterministic system** one where no randomness is involved in the development of future states of the system - thus it will always provide the same output from an initial state.
+
+2. The function only returns a value, they have no "side effects".
+
+## Referential Transparency
+
+Much like in mathematics, identifier bindings in pure functional programming are immutable.  Thus, we say that an identitfier is **referentially transparent** if it can be substituted with its value in the source code without changing the meaning of the program.
