@@ -191,6 +191,44 @@ The bindings of a `let` form are only available only in the body, so the binding
 
 ## Pattern Matching
 
+We can define simpler functions that leverage pattern matching using the `define/match` keyword, using the follwing syntax:
+
+```rkt
+(define/match (<id> <param>*) [(<expr>)+ expr*]*)
+```
+
+Below is an example of a function with an `if` statement that performs **control based on value**, followed by its analogous pattern matching version.
+
+```rkt
+; Value based conditional
+(define (foo x)
+    (cond 
+    [(= x 5) 10]
+    [(= x 10) 15]
+    [else (+ x 13)]))
+
+; Value based pattern matching
+(define/match (foo2 x)
+    [(5) 10]
+    [(10) 15]
+    [(_) (+ x 13)]) ; _ matches anything
+```
+
+Pattern matching can also be used on **control based on structure**, which is more commonly used in recursive definitions of functions on lists like the one below.
+
+```rkt
+; Structure based conditional
+(define (listMax lst)
+    (if (null? lst)
+    -inf.0
+    (max (first lst) (listMax (rest lst)))))
+
+; Structutral pattern-matching
+(define/match (listMax2 lst)
+    [((list)) -inf.0] ; list matches the empty list
+    [((cons x xs)) (max x (listMax2 xs))])
+```
+
 ## Anonymous Functions
 
 In Racket, you can use a `lambda` expression to produce a function directly. A lambda expression follows the following syntax:

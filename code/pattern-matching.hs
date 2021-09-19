@@ -3,7 +3,7 @@ factorial 0 = 1
 factorial n = n * factorial(n - 1)
 
 
--- Value based consitional
+-- Value based conditional
 foo :: (Eq p, Num p) => p -> p
 foo x = if x == 5
     then 10
