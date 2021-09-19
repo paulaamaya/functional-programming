@@ -2,6 +2,9 @@
 - [Functions](#functions)
   - [Defining Functions](#defining-functions)
   - [Bindings](#bindings)
+  - [Pattern Matching](#pattern-matching)
+    - [Value-Equality Pattern Matching](#value-equality-pattern-matching)
+    - [Structural Pattern Matching](#structural-pattern-matching)
   - [Anonymous Functions](#anonymous-functions)
   - [Higher Order Functions](#higher-order-functions)
 - [Lists](#lists)
@@ -47,17 +50,17 @@ if <bool> then <expr> else <expr>
 
 > **Note:** The `if` statement in Haskell is an expression, which means it must evaluate to a value.  Hence, the `else` is always mandatory; ensuring that if-statements always evaluate to a value.
 
-Due to the recusive nature of these things, we can nest `if`-statements in the `else` expression of the previous one.
+Due to the recusive nature of these things, we can nest `if`-statements in the `else` expression of the previous one,
 
 ```hs
 x = 13
 
-if x `mod` 2 == 0 
-  then "Number is divisible by 2"
-else if x `mod` 3 == 0
-  then "Number is divisible by 3"
+if x `mod` 2 == 0 then "Number is divisible by 2"
+else if x `mod` 3 == 0 then "Number is divisible by 3"
 else "I'm too lazy to keep checking"
 ```
+
+This can be refactored even further using [pattern matching](#pattern-matching).
 
 
 # Functions
@@ -140,6 +143,57 @@ cylinderArea :: Floating a => a -> a -> a
 cylinderArea r h =  let sideArea = 2 * pi * r * h
                         topArea = pi * (r ^ 2)
                     in sideArea + 2 * topArea
+```
+
+## Pattern Matching
+
+Pattern matching is a feature that allows us to **specify conditional behaviour depending on the structure of a value**, with some really concise syntax.
+
+```hs
+factorial :: (Eq p, Num p) => p -> p
+factorial 0 = 1
+factorial n = n * factorial(n - 1)
+```
+
+### Value-Equality Pattern Matching
+
+Let's consider an example of a value-based function, and see how we can simplify it with pattern matching.
+
+```hs
+-- Conditional statment checking value of param
+foo :: (Eq p, Num p) => p -> p
+foo x = if x == 5
+    then 10
+    else if x == 10
+        then 15
+    else x + 13
+```
+
+Rather than giving one generic function signature with a conditional statememnt, we give three (one per `if` branch) pattern-based definitions.
+
+```hs
+-- Pattern matching
+foo2 :: (Eq p, Num p) => p -> p
+foo2 5 = 10
+foo2 10 = 15
+foo2 x = x + 13
+```
+
+### Structural Pattern Matching
+
+We can also use pattern-matching to *decompose a value into subparts and bind each subpart to a new identifier that can be used later*.
+
+The most common application of this is pattern matching to lists, where we can deconstruct the list into subparts that can make our recursion more clear - `[]` matches the empty list and `x:xs` matches a list with at least one element.
+
+```hs
+-- Strucuture based conditional
+listMax :: (Fractional a, Ord a) => [a] -> a
+listMax lst = if null lst then - 1 / 0
+            else max (head lst) (listMax (tail lst))
+
+-- Structural pattern matching
+listMax2 [] = -1/0
+listMax2 (x:xs) = max x (listMax2 xs)
 ```
 
 ## Anonymous Functions

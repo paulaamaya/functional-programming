@@ -4,6 +4,7 @@
   - [Logical Operators](#logical-operators)
 - [Functions](#functions)
   - [Bindings](#bindings)
+  - [Pattern Matching](#pattern-matching)
   - [Anonymous Functions](#anonymous-functions)
   - [Higher Order Functions](#higher-order-functions)
 - [Lists](#lists)
@@ -38,7 +39,7 @@ The first `<expr1>` is always evaluated. If it evaluates to a non-`#f` value, th
 ; "2 is smaller than 3"
 ```
 
-Complex conditionals can be formed by nesting if expressions.  Although this can be refactored into cleaner code, here is an example,
+Complex conditionals can be formed by nesting if expressions,
 
 ```rkt
 (define (reply s)
@@ -53,6 +54,8 @@ Complex conditionals can be formed by nesting if expressions.  Although this can
 (reply "what's up?")
 ; "huh?"
 ```
+
+Fun fact: This can be refactored into cleaner code by using [pattern matching](#pattern-matching).
 
 ## Chaining Tests: `cond` Operator
 
@@ -186,6 +189,7 @@ The bindings of a `let` form are only available only in the body, so the binding
   [else "LaMe"]))
 ```
 
+## Pattern Matching
 
 ## Anonymous Functions
 
