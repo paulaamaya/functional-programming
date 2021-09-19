@@ -1,8 +1,9 @@
+- [Fundamentals](#fundamentals)
 - [Functions](#functions)
   - [Defining Functions](#defining-functions)
-  - [Higher Order Functions](#higher-order-functions)
-    - [Anonymous Functions](#anonymous-functions)
   - [Bindings](#bindings)
+  - [Anonymous Functions](#anonymous-functions)
+  - [Higher Order Functions](#higher-order-functions)
 - [Lists](#lists)
   - [Concatenation](#concatenation)
   - [List Functions](#list-functions)
@@ -29,6 +30,35 @@ To find out more about how a built-in function works simply type `:t function` i
 ghci> :t sqrt
 sqrt :: Floating a => a -> a
 ```
+
+# Fundamentals
+
+Binding names to a value in Haskell is pretty straightoforward,
+
+```hs
+<id> = <expr>
+```
+
+We can also define if statements which follow the following syntax:
+
+```hs
+if <bool> then <expr> else <expr>
+```
+
+> **Note:** The `if` statement in Haskell is an expression, which means it must evaluate to a value.  Hence, the `else` is always mandatory; ensuring that if-statements always evaluate to a value.
+
+Due to the recusive nature of these things, we can nest `if`-statements in the `else` expression of the previous one.
+
+```hs
+x = 13
+
+if x `mod` 2 == 0 
+  then "Number is divisible by 2"
+else if x `mod` 3 == 0
+  then "Number is divisible by 3"
+else "I'm too lazy to keep checking"
+```
+
 
 # Functions
 
@@ -70,7 +100,7 @@ Functions are defined similar to how they are called, namey using spaces to deno
 > **Note:** Functions cannot begin with capital letters!
 
 ```
-functionName <param>* = <body>
+<id> <param>* = <body>
 ```
 
 A common theme in functional programming languages is to define basic functions that are obviosly correct, and then combining them into more complex functions.
@@ -82,18 +112,6 @@ doubleSmallNumber x = if x > 100 then x else x * 2
 processNumber :: (Num a, Ord a) => a -> a
 processNumber x = doubleSmallNumber x + 1
 ```
-
-> **Note:** The `if` statement in Haskell is an expression, which means it must evaluate to a value.  Hence, the `else` is always mandatory; ensuring that if-statements always evaluate to a value.
-
-## Higher Order Functions
-
-### Anonymous Functions
-
- Anonymous functions in Haskell have the following syntax:
-
- ```hs
-\ <param>* ... -> <body>
- ```
 
 ## Bindings
 
@@ -123,6 +141,16 @@ cylinderArea r h =  let sideArea = 2 * pi * r * h
                         topArea = pi * (r ^ 2)
                     in sideArea + 2 * topArea
 ```
+
+## Anonymous Functions
+
+ Anonymous functions in Haskell have the following syntax:
+
+ ```hs
+\ <param>* ... -> <body>
+ ```
+
+## Higher Order Functions
 
 # Lists
 
