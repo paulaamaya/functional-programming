@@ -5,6 +5,7 @@
   - [Pattern Matching](#pattern-matching)
     - [Value-Equality Pattern Matching](#value-equality-pattern-matching)
     - [Structural Pattern Matching](#structural-pattern-matching)
+    - [Guards](#guards)
   - [Anonymous Functions](#anonymous-functions)
   - [Higher Order Functions](#higher-order-functions)
 - [Lists](#lists)
@@ -195,6 +196,10 @@ listMax lst = if null lst then - 1 / 0
 listMax2 [] = -1/0
 listMax2 (x:xs) = max x (listMax2 xs)
 ```
+
+### Guards
+
+So far, we can only use patterns to make sure sure a value has some form and to deconstruct it into its structural parts. Haskell **guards allow us to test whether some property of a value is true or not**.  You can think of this as an alternative to `if`-statements that controlled flow based on variable properties rather than the value of the variable.
 
 ## Anonymous Functions
 

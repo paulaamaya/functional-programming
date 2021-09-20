@@ -1,3 +1,4 @@
+import GHC.CmmToAsm.PPC.Instr (Instr(XORIS))
 factorial :: (Eq p, Num p) => p -> p
 factorial 0 = 1
 factorial n = n * factorial(n - 1)
@@ -23,6 +24,7 @@ listMax lst = if null lst then - 1 / 0
             else max (head lst) (listMax (tail lst))
 
 -- Structural pattern matching
+listMax2 :: (Fractional a, Ord a) => [a] -> a
 listMax2 [] = -1/0
 listMax2 (x:xs) = max x (listMax2 xs)
 
@@ -33,3 +35,8 @@ checker x = if even x then "Divisible by 2"
             else "I'm too lazy to keep checking"
 
 -- Guards
+checker2 :: Integral a => a -> String
+checker2 x
+    | even x = "Divisible by 2"
+    | x `mod` 3 == 0 = "Divisible by 3"
+    | otherwise = "I'm too lazy to keep checking"
