@@ -4,6 +4,8 @@
 - [Lambda Calculus](#lambda-calculus)
   - [Referential Transparency](#referential-transparency)
 - [Lists and Structural Recursion](#lists-and-structural-recursion)
+- [Tail Recursion](#tail-recursion)
+  - [Tail Recursion to Loops](#tail-recursion-to-loops)
 
 ---
 
@@ -122,4 +124,44 @@ While the grammar for creating a list in **Haskell** is:
 <list> = '[]' | <expr> ':' <list>
 ```
 
-This recursive definition of lists tells us, not only about their representation, but also how to operate on them (Hint: It's recursive!)
+This recursive definition of lists tells us, not only about their representation, but also how to operate on them (Hint: It's recursive!).  We want to operate on the first, element of the list then recusively operate on the rest.
+
+# Tail Recursion
+
+Tail recursion is a technique to optimize recursive functions be **making the recursive call the last thing you do**, i.e. the recursion is the *tail call*.  [This](https://www.youtube.com/watch?v=_JtPhF8MshA) is a great video that explains why tail recursion is so much more efficient.
+
+> A **tail call** is a **subroutine call performed as the final action of a procedure**.  When the subroutine is identical to the procedure, we refer to the subroutine as tail recursive.
+
+Haskell and Racket take advantage of tail recursion: when it calls a function that is in tail call position (this is detected by the compiler), it first **removes the calling function's stack frame, and this results in constant stack height**.
+
+```rkt
+; traditional recursive definition
+(define (sum lst)
+    (if (empty? lst)
+    0
+    (+ (first lst) (sum (rest lst)))))
+
+; tail call recursive definition
+(define (sum-tail lst)
+    (sum-helper lst 0))
+
+(define (sum-helper lst agg)
+    (if (empty? lst)
+    agg
+    (sum-helper (rest lst) (+ agg (first lst)))))
+```
+
+The evaluation of `(sum-tail '(1 2 3 4))` produces the function calls `(sum-helper '(1 2 3 4) 0)`, `(sum-helper '(2 3 4) 1)`, `(sum-helper '(3 4) 3)`, etc.  Since Racket performs tail call elimination, each of these function calls replaces the stack frame for the one before it. So the sequence,
+
+```rkt
+(sum-helper '(1 2 3 4) 0)
+(sum-helper '(2 3 4) 1)
+(sum-helper '(3 4) 3)
+(sum-helper '(4) 6)
+(sum-helper '() 10)
+```
+
+can really be viewed, not as five function calls, but as an iterative process that executes the function body and updates the variables `lst` and `agg` with every iteration.
+
+## Tail Recursion to Loops
+
