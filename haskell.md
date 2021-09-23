@@ -7,7 +7,6 @@
     - [Structural Pattern Matching](#structural-pattern-matching)
     - [Guards](#guards)
   - [Anonymous Functions](#anonymous-functions)
-  - [Higher Order Functions](#higher-order-functions)
 - [Lists](#lists)
   - [Concatenation](#concatenation)
   - [List Functions](#list-functions)
@@ -209,8 +208,6 @@ So far, we can only use patterns to make sure sure a value has some form and to 
 \ <param>* ... -> <body>
  ```
 
-## Higher Order Functions
-
 # Lists
 
 In Haskell, lists are a *homogenous* data structure, i.e. they store elements of the same type. 
@@ -385,6 +382,33 @@ take 10 (repeat 5)
 ```
 
 Although it's simpler to just use the replicate function if you want some number of the same element in a list. replicate 3 10 returns [10,10,10].
+
+`map` takes in a callback function `f` and a list, then applies `f` to every element in the list producing a new list.
+
+```hs
+map (+ 1) [1,2,3,4,5]
+-- [2,3,4,5,6]
+```
+
+`filter` takes in a predicate `p` and a list, then creates a new list containing all the elements in the original list that evaluated to `True`.
+
+```hs
+filter even? [1,2,3,4,5]
+-- [2,4]
+```
+The two functions above are powerful for "iterating" over a list, but they are restricted to returning annother list.
+
+> In functional programming, `fold` (or reduce) is a family of higher order functions that process a data structure in some order and build a return value.
+
+`foldl` takes in a binary function, a starting value (or accumulator), and a list to fold up.  It then proceeds to fold the list from left to right.
+
+- The binary function produces the accumulator.
+- The binary function is applied from the starting value to the tail of the list.
+
+```hs
+foldl (-) 0 [1,2,3,4,5]
+-- -15
+```
 
 ## List Comprehension
 

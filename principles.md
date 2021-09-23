@@ -5,7 +5,6 @@
   - [Referential Transparency](#referential-transparency)
 - [Lists and Structural Recursion](#lists-and-structural-recursion)
 - [Tail Recursion](#tail-recursion)
-  - [Tail Recursion to Loops](#tail-recursion-to-loops)
 
 ---
 
@@ -163,5 +162,5 @@ The evaluation of `(sum-tail '(1 2 3 4))` produces the function calls `(sum-help
 
 can really be viewed, not as five function calls, but as an iterative process that executes the function body and updates the variables `lst` and `agg` with every iteration.
 
-## Tail Recursion to Loops
+
 

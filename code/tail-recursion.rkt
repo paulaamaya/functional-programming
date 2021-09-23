@@ -12,3 +12,11 @@
     (if (empty? lst)
     agg
     (sum-helper (rest lst) (+ agg (first lst)))))
+
+
+(define (factorial n)
+    (factorial-helper n 1))
+
+(define/match (factorial-helper n agg)
+    [(0 agg) agg]
+    [(n agg) (factorial-helper (- n 1) (* n agg))])
