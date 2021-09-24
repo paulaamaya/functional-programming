@@ -5,6 +5,9 @@
   - [Referential Transparency](#referential-transparency)
 - [Lists and Structural Recursion](#lists-and-structural-recursion)
 - [Tail Recursion](#tail-recursion)
+- [Programming with ASTs](#programming-with-asts)
+  - [Racket: Quoted Expressions](#racket-quoted-expressions)
+  - [Haskell: Value Constructors](#haskell-value-constructors)
 
 ---
 
@@ -161,6 +164,84 @@ The evaluation of `(sum-tail '(1 2 3 4))` produces the function calls `(sum-help
 ```
 
 can really be viewed, not as five function calls, but as an iterative process that executes the function body and updates the variables `lst` and `agg` with every iteration.
+
+# Programming with ASTs
+
+We can generalize the *list* data structure into the *tree* data structure, where **the recursive part of the structure contains an arbitrary number of subcomponents** rather than just one.
+
+## Racket: Quoted Expressions
+
+Since Racket is a Lisp descendant, **the parenthesization of source code immediately creates a nested list structure**, i.e. a tree.  We call this *quoting an expression*.
+
+```rkt
+; a regular racket expression 
+(+ 1 2)
+; 3
+
+; a list of three elements
+(first '(+ 1 2))
+; '+
+
+; this is a nested list
+'((+ 1 2) (* 4 5))
+```
+
+Fomally, here are the types of values that make up the tree strucutre in a Racket datum:
+
+1. **Literal to literal** - Quoted literals (e.g. ints, bools, strings) represent the same values in the tree that they do in the source code.
+
+```rkt
+(equal? '#t #t)
+; #t
+
+(equal? '"hello" "hello")
+; #t
+```
+
+2. **Keyword to symbol** -  Quoted identifiers or keywords become symbols in the tree and can be used for pattern-matching.
+
+3. Quoted compound expressions become lists, in which each element is the quoted version of the corresponding subexpression.
+
+Here is an example of a function that takes in a datum and returns the number of times the identifier `+` appears in the datum:
+
+```rkt
+(define/match (num-plus datum)
+    [((list expr ...)) (apply + (map num-plus expr))]
+    [('+) 1]
+    [(_) 0])
+```
+
+## Haskell: Value Constructors
+
+Since Haskell lists must be homogenous, we cannot store a list with nested lists, symbols and literals all mixed in.
+
+However, its type system does allow us to to declare and pattern match on a type with multiple constructors.
+
+```hs
+data Expr = 
+    -- An integer literal
+    NumLiteral Int 
+    -- An identifier
+    | Identifier String
+    -- A function call where
+        -- Expr is the function being called
+        -- [Expr contains the arguments]
+    | Call Expr [Expr] -- A function call
+```
+
+The main point is that `NumLiteral`,`Identifier`, and `Call` are *value constructors* that take in a type and return a value of type `Expr`.  Notice how the structure is in line with the [definition](#abstract-syntax-trees-asts) of an AST.
+
+Here is the implementation in Haskell of the `numPlus` function we wrote above in Racket:
+
+```hs
+numPlus :: Num a => Expr -> a
+numPlus (Call f args) = numPlus f + sum (map numPlus args)
+numPlus (Identifier "+") = 1
+numPlus (Identifier _) = 0
+numPlus (NumLiteral _) = 0
+```
+
+
 
 
 
