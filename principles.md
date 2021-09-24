@@ -78,7 +78,7 @@ Lambda calculus is a formal system for expressing computation based on function 
 It consists of constructing lambda terms and performing reduction operations on them.  Thus, evaluating an expression means performing simplifications until it can no longer be simplified.
 
 In its basic form, an expression is one of the following:
-1. An **identifier** - A character or string representing a parameter, mathematica,or logical value (e.g. $x$).
+1. An **identifier** - A character or string representing a parameter, mathematical,or logical value (e.g. $x$).
 2. A **function expression** $\lambda x . M$ - Function definition where $x$ becomes bound in the expression and $M$ is a lambda term (e.g. the identity function $\lambda x . x$).
 3. A **function application** $f\ N$ - This expression applies the function $f$ to lambda expression $N$.
 

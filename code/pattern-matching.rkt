@@ -25,3 +25,16 @@
 (define/match (listMax2 lst)
     [((list)) -inf.0] ; list matches the empty list
     [((cons x xs)) (max x (listMax2 xs))])
+
+; An interpreter for a binary arithmetic expression
+(define/match (calculate expr)
+    ; binary operation
+    [((list op e1 e2))
+    (let* ([val1 (calculate e1)] [val2 (calculate e2)])
+    (cond 
+    [(equal? op '+) (+ val1 val2)]
+    [(equal? op '-) (- val1 val2)]
+    [(equal? op '*) (* val1 val2)]
+    [(equal? op '/) (/ val1 val2)]))]
+    ; number
+    [(num) num])
