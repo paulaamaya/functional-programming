@@ -3,6 +3,7 @@
   - [Chaining Tests: `cond` Operator](#chaining-tests-cond-operator)
   - [Logical Operators](#logical-operators)
 - [Functions](#functions)
+  - [Defining Functions](#defining-functions)
   - [Bindings](#bindings)
   - [Pattern Matching](#pattern-matching)
   - [Anonymous Functions](#anonymous-functions)
@@ -124,6 +125,8 @@ Function calls are perfomed within parentheses - opening parentheses, calling th
 (>= 2 1)
 ; #t
 ```
+
+## Defining Functions
 
 The syntax to define a function is as follows:
 

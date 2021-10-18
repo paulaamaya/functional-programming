@@ -130,7 +130,7 @@ This recursive definition of lists tells us, not only about their representation
 
 # Tail Recursion
 
-Tail recursion is a technique to optimize recursive functions be **making the recursive call the last thing you do**, i.e. the recursion is the *tail call*.  [This](https://www.youtube.com/watch?v=_JtPhF8MshA) is a great video that explains why tail recursion is so much more efficient.
+Tail recursion is a technique to optimize recursive functions by **making the recursive call the last thing you do**, i.e. the recursion is the *tail call*.  [This](https://www.youtube.com/watch?v=_JtPhF8MshA) is a great video that explains why tail recursion is so much more efficient.
 
 > A **tail call** is a **subroutine call performed as the final action of a procedure**.  When the subroutine is identical to the procedure, we refer to the subroutine as tail recursive.
 

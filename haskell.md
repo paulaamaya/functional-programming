@@ -200,6 +200,21 @@ listMax2 (x:xs) = max x (listMax2 xs)
 
 So far, we can only use patterns to make sure sure a value has some form and to deconstruct it into its structural parts. Haskell **guards allow us to test whether some property of a value is true or not**.  You can think of this as an alternative to `if`-statements that controlled flow based on variable properties rather than the value of the variable.
 
+```hs
+-- Expression based if statements
+checker :: Integral a => a -> String
+checker x = if even x then "Divisible by 2"
+            else if x `mod` 3 == 0 then "Divisible by 3"
+            else "I'm too lazy to keep checking"
+
+-- Guards
+checker2 :: Integral a => a -> String
+checker2 x
+    | even x = "Divisible by 2"
+    | x `mod` 3 == 0 = "Divisible by 3"
+    | otherwise = "I'm too lazy to keep checking"
+```
+
 ## Anonymous Functions
 
  Anonymous functions in Haskell have the following syntax:
