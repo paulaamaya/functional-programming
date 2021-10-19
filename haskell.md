@@ -7,6 +7,7 @@
     - [Structural Pattern Matching](#structural-pattern-matching)
     - [Guards](#guards)
   - [Anonymous Functions](#anonymous-functions)
+  - [Currying](#currying)
 - [Lists](#lists)
   - [Concatenation](#concatenation)
   - [List Functions](#list-functions)
@@ -222,6 +223,20 @@ checker2 x
  ```hs
 \ <param>* ... -> <body>
  ```
+
+ ## Currying
+
+Currying is a neat feature of Haskell that allows us to create functions on the fly.  This feature allows us use **partially applied function calls**, i.e. call a function is called on "too few" parameters.  This doesn't give an error and in fact *returns a new version of the curried function with one of its paramemters permanently set*.
+
+For instance, say we want to filter a list depending on which elements are larger than 5.  We can use the following short-hand notation:
+
+```hs
+bigList :: [Integer] -> [Integer]
+bigList xs = filter ((<) 5) (xs)
+-- The 5 always gets passed as the first arg of the binary operator <
+```
+
+
 
 # Lists
 

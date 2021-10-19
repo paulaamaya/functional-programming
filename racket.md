@@ -8,6 +8,7 @@
   - [Pattern Matching](#pattern-matching)
   - [Anonymous Functions](#anonymous-functions)
   - [Higher Order Functions](#higher-order-functions)
+  - [Currying](#currying)
 - [Lists](#lists)
   - [List Functions](#list-functions)
   
@@ -280,6 +281,23 @@ Consider a function that takes in another function and an argument,
 ; 20
 ```
 
+## Currying
+
+Although not as straightforward as Haskell, currtying is still useful in Racket with the `curry` function, which turns a function `f(x1 x2 x3 ... xn)` into a function `(((((f x1) x2) x3)...)xn)`.
+
+For instance, if we want to filter a list by elements greater than 5, we can defining skip a lambda function by using shorthand currying notation:
+
+```rkt
+(filter (curry < 5) '(1 2 3 44 55))
+; '(44 55)
+; The 5 always gets passed as the first arg to the binary operator <
+```
+
+You can think of currying as a way to accumulate arguments of a function until all arguments are present and `f` can be called.
+
+> "These are the arguments I know so far, I'll give you the rest later"
+
+
 # Lists
 
  The `list` function takes any number of values and returns a list containing the values.
@@ -367,3 +385,12 @@ The `filter` function only keeps elements for which the body result is true, and
 (filter number? zs)
 ; '(1 2 3)
 ```
+
+The `foldl` function "folds" all the elements of a list from a starting point to the right according to a given function.  Unlike the other iterative functions above, a fold is not retricted to returning a list.
+
+```rkt
+(foldl - 0 (list 1 2 3 4 5))
+; 3
+```
+
+Notice that this implemetation is different from Haskell's and a bit unintuitive. Read more about it [here](https://stackoverflow.com/questions/36960124/foldr-and-foldl-in-drracket).
