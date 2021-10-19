@@ -9,8 +9,10 @@
   - [Racket: Quoted Expressions](#racket-quoted-expressions)
   - [Haskell: Value Constructors](#haskell-value-constructors)
 - [Operational Semantics](#operational-semantics)
-  - [Strict Evaluation Semantics](#strict-evaluation-semantics)
-  - [Non-Strict Syntactic Forms](#non-strict-syntactic-forms)
+  - [Strict Evaluation Semantics in Racket](#strict-evaluation-semantics-in-racket)
+    - [Non-Strict Syntactic Forms](#non-strict-syntactic-forms)
+    - [Delaying Evaluation](#delaying-evaluation)
+  - [Non-Strict Semantics in Haskell](#non-strict-semantics-in-haskell)
 
 ---
 
@@ -254,7 +256,7 @@ But what happens with invalid programs?  It is in aswering this question that we
 
 **Undefined Value:** An invalid expression results in an undefined value if it represents a computation that does not complete - due to its abstract mathematical meaning or because it represents non-terminating computation.
 
-## Strict Evaluation Semantics
+## Strict Evaluation Semantics in Racket
 
 **Strict Evaluation Denotational Semantics:** We say that a language has SEDS if and only if whenever an expression contains a subexpression whose value is undefined, the value of the expression itself is also undefined.
 
@@ -268,7 +270,7 @@ In this context, an expression contains two subexpressions: the function being c
 
 Since the arguments are evaluated before being substituted into the body of a function, if any of them (or even the function expression) are undefined, this is discovered before the function call.
 
-## Non-Strict Syntactic Forms
+### Non-Strict Syntactic Forms
 
 We know that some expressions do not eagerly evaluate all of their subexpressions, and instead short-circuit (e.g. `and`, `or`, conditionals).  These are **synctactic forms**, rather than identifiers that refer to built-in functions.
 
@@ -283,6 +285,78 @@ For instance, the following two expressions evaluate to the same value, but they
 ; FUNCTION CALL
 (my-and #f (/1 0))  ; raises error
 ```
+
+### Delaying Evaluation
+
+In general, the body of a function is not evaluated until the function is called.  This means that we can delay the evauation of an expression, simply by putting it inside the body of a function.
+
+**Thunk:** A nullary function whose purpose is to delay the evaluation of an expression in its body.  
+
+For instance, `(lambda () (/ 1 0))` is a thunk, wrapping the error-raising expression.
+
+```
+; THUNK
+(define (bad) (/ 1 0))
+
+bad
+; #<procedure:bad>
+
+(bad)
+; /: division by zero
+```
+
+Using this feature we can simulate non-strict semantics by passing in thunks that wrap the arguments.
+
+```
+(define (my-and x y)
+  (and (x) (y)))
+
+; Pass in thunks instead of expressions
+(my-and (lambda () #f) (lambda () (/ 1 0)))
+; (/ 1 0) is never evaluated
+#f  
+```
+
+## Non-Strict Semantics in Haskell
+
+**Lazy Evaluation:** Evaluation strategy which delays the evaluation of an expression until its value is needed.  It is also called call-by-need evaluation.
+
+Haskell uses lazy evaluation for both function expressions and arguments.  For instance in the function `onlyFirst x y = x`, the parameter `y` is never actually evaluated - so we could technically pass it something crazy!
+
+A fun fact is that **all name binding are thunks**, i.e. in the binding `<id> = <expr>`, the expression `<expr>` is really the body of the thunk.  So it does not get evaluated until the thunk is called.
+
+```hs
+-- No error when x is bound
+x = error "This is an error"
+
+-- Error only when x is actually evaluated
+x
+-- ***Exception: This is an error
+```
+
+Lazy evaluation has its caveats in predicting how a function will really behave.  Consider the case of `foldl`, which loses a lot of its tail-recursive efficiency:
+
+```hs
+foldl _ acc [] = acc
+foldl f acc (x:xs) = 
+  let acc' = f acc x
+  in foldl f acc' xs
+```
+
+Because of lazy evaluation, the `acc'` expressions are subnested into each other and take up more space than an accumulator integer would.  Futhermore, these accumulator thunks are only called when we reach the end of the list!
+
+We can force the evaluation of an expression into a **strict parameter** even when not "necessary" with a compiler extension as follows,
+
+```hs
+{-# LANGUAGE BangPatterns #-}
+
+-- Strict param denoted by !
+foldl _ !acc [] = acc
+foldl f !acc (x:xs) = 
+  let acc' = f acc x
+  in foldl f acc' xs
+```
+
 
 
 
