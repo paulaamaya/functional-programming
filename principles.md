@@ -8,6 +8,9 @@
 - [Programming with ASTs](#programming-with-asts)
   - [Racket: Quoted Expressions](#racket-quoted-expressions)
   - [Haskell: Value Constructors](#haskell-value-constructors)
+- [Operational Semantics](#operational-semantics)
+  - [Strict Evaluation Semantics](#strict-evaluation-semantics)
+  - [Non-Strict Syntactic Forms](#non-strict-syntactic-forms)
 
 ---
 
@@ -240,6 +243,48 @@ numPlus (Identifier "+") = 1
 numPlus (Identifier _) = 0
 numPlus (NumLiteral _) = 0
 ```
+
+# Operational Semantics
+
+Operational sematics are not concerned with an expressions final value after evaluation, but rather *how the expression is evaluated*.  This concept becomes important for complex expressions with lots of sub-nested expressions.  Intuitively, the order of evaluation could potentially result in one expression having two final values.
+
+It turns out all roads lead to Rome.  The **Church-Rosser Theorem** says that for any **valid program** in the lambda calculus, every possible order of fuction application must result in the same value.
+
+But what happens with invalid programs?  It is in aswering this question that we must discuss *evaluation order*.
+
+**Undefined Value:** An invalid expression results in an undefined value if it represents a computation that does not complete - due to its abstract mathematical meaning or because it represents non-terminating computation.
+
+## Strict Evaluation Semantics
+
+**Strict Evaluation Denotational Semantics:** We say that a language has SEDS if and only if whenever an expression contains a subexpression whose value is undefined, the value of the expression itself is also undefined.
+
+In this context, an expression contains two subexpressions: the function being called, and the arguments of which to apply the function.
+
+**Left-to-Right Eager Evaluation:** A common implementation of SEDS, which evaluates function calls in the following way:
+
+1. Evaluate the subexpression representing the function being called (commonly the indetifier).
+2. Evaluate each argument subexpression, left-to-right.
+3. Substitiute the *value* of each argument subexpression into the body of the function.
+
+Since the arguments are evaluated before being substituted into the body of a function, if any of them (or even the function expression) are undefined, this is discovered before the function call.
+
+## Non-Strict Syntactic Forms
+
+We know that some expressions do not eagerly evaluate all of their subexpressions, and instead short-circuit (e.g. `and`, `or`, conditionals).  These are **synctactic forms**, rather than identifiers that refer to built-in functions.
+
+For instance, the following two expressions evaluate to the same value, but they are not indentical because of evaluation order.
+
+```rkt
+(define (my-and x y) (and x y))
+
+; SYNTACTIC FORM
+(and #f (/1 0))     ; evaluates to #f
+
+; FUNCTION CALL
+(my-and #f (/1 0))  ; raises error
+```
+
+
 
 
 

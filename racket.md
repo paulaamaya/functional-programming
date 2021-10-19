@@ -394,3 +394,14 @@ The `foldl` function "folds" all the elements of a list from a starting point to
 ```
 
 Notice that this implemetation is different from Haskell's and a bit unintuitive. Read more about it [here](https://stackoverflow.com/questions/36960124/foldr-and-foldl-in-drracket).
+
+The `apply` function takes in a function `f` and a list, then applies `f` once to all elements of the list **at the same time**.  This is different from `map` which applies `f` to each item in the list individually.
+
+```rkt
+(apply + '(1 2 3 4))
+; 10
+; equivalent to...
+(+ 1 2 3 4)
+```
+
+More generally we have that, `(apply f '(x1 x2 x3 ... xn)) == (f x1 x2 x3 ... xn)`.
