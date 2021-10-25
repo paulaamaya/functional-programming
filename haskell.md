@@ -440,6 +440,14 @@ foldl (-) 0 [1,2,3,4,5]
 -- -15
 ```
 
+This is an iterative implementation of Haskell's `foldl` written in Python:
+
+```py
+acc = init
+for x in lst:
+  acc = combine(acc, x)
+```
+
 ## List Comprehension
 
 ### Predicate Filtering

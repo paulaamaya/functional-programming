@@ -13,6 +13,7 @@
     - [Non-Strict Syntactic Forms](#non-strict-syntactic-forms)
     - [Delaying Evaluation](#delaying-evaluation)
   - [Non-Strict Semantics in Haskell](#non-strict-semantics-in-haskell)
+  - [Lexical Closures](#lexical-closures)
 
 ---
 
@@ -356,6 +357,35 @@ foldl f !acc (x:xs) =
   let acc' = f acc x
   in foldl f acc' xs
 ```
+
+## Lexical Closures
+
+**Free Variable:** An identifier in a function is said to be a free variable if its used locally, but defined in an enclosing scope of the function.
+
+**Closure:** A record that stores a function, along with an environment.  The environment is a mapping associating each free variable of the function with the *value or reference to which the name was bound when the closure was created*.
+
+In the following example, each of the three `print_i` functions in `flist` is storing a reference and not a value.  Thus they are all pointing to the address of the variable `i` (which terminates as 3) and so they all store the same address in the closure.
+
+```py
+def make_functions():
+  flist = []
+  for i in [1,2,3]:
+    # II. The closure has stored the fact that i=3 at this point
+    def print_i():
+      print(i)
+      ## III. According to the closure lookup, we print 3
+    flist.append(print_i)
+  return flist
+
+for f in make_functions():
+  # I. We call f here. Using lexical scoping, Python goes back to the definition
+  f()
+```
+
+When a function is evaluated, all of its free variables are looked up in the closure.  But as per the definition, though closures are created at runtime, the mapping of the free variables is based only on where the creation of the closure appears in the source code.  This is called **lexical scope**, due to the fact that resolution of variables can be done solely by analyzing the source code without running it.
+
+> Lexical scoping resolves names based on source code, whereas dynamic scoping resolves names based on the program state at runtime.
+
 
 
 
