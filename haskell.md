@@ -18,6 +18,10 @@
     - [Multiple Lists and Predicates](#multiple-lists-and-predicates)
     - [Nested Comprehensions](#nested-comprehensions)
 - [Type System](#type-system)
+  - [Basics](#basics)
+  - [Currying & Sectioning](#currying--sectioning)
+  - [Defining Types](#defining-types)
+  - [Unions](#unions)
 
 
 The folllowing notes are based on [Learn You a Haskell for Great Good!](http://learnyouahaskell.com/chapters)
@@ -553,3 +557,102 @@ xxs' = [[x | x <- xs, odd x] | xs <- xxs]
 
 
 # Type System
+
+## Basics
+
+In Haskell, types are denoted by capitalized names like `Bool` and `Char`.  You can always see the type of any expression with the command `#t`.
+
+```hs
+:t Bool
+-- True :: Bool
+:t "Hello"
+-- "Hello" :: [Char]
+-- Like C, Haskell stores strings as a list of chars
+```
+
+Haskell is statically-typed.  Consider the following example:
+
+```hs
+:t (if 3 > 1 then "hi" else "bye")
+-- (if 3 > 1 then "hi" else "bye") :: [Char]
+```
+
+We can finally understand why Haskell requires that both return branches of an if-statement return the same type.  Notice that the compiler can determine the type of an expression without actually evaluating it.
+
+## Currying & Sectioning
+
+Haskell's type system actually helps us to understand currying more in-depth. Consider the type signature of a binary function like `&&`:
+
+```hs
+:t (&&)
+-- (&&) :: Bool -> Bool -> Bool
+```
+
+The `->` operator in Haskell is right-associative, meaning that `(Bool -> Bool) -> Bool == Bool -> (Bool -> Bool)`.  Thus, **Haskell interprets binary functions as unary higher order functions** that return a function with type `Bool -> Bool`.  In fact, the name *currying* comes directly from the lambda calculus which says that *any multiparameter function can be broken down into a composition of unary functions*.
+
+Because binary functions are primarily meant to be used infix, Haskell provides a special syntax for currying infix operators, called **sectioning**.  This allows us to partially apply an operator by fixing either the first or the second argument.
+
+```hs
+f = (True &&) -- Equiv. to (&&) True -> True && x
+g = (&& True) -- Not possible with reg. currying -> x && True
+```
+
+Here is another example of how we can use what we've learned so far to create a very elegant function definition:
+
+```hs
+addToAll1 n lst = map (\x -> x + n) lst
+addToAll2 n lst = map (+ n) lst
+addToAll3 n = map (+ n)
+```
+
+## Defining Types
+
+We finally get to define our own types in Haskell!  Before that it is worth noting that Haskell will reuse expressions/symbols between its,
+
+- **Expression language** which is used to declare variables and evaluate expressions - for example  `(\x -> x + 1)`.
+- **Type language** which is used to represent the types of expressions - for example `Integer -> Integer`.
+
+```hs
+-- type definition
+data Point = Point Float Float
+
+p = Point 1 2
+
+:t p
+-- p is a Point
+--p :: Point
+
+:t Point
+-- Point is a value constructor that returns a value of that type
+-- Point :: Float -> Float -> Point
+```
+
+How can we access the `Float` attributes of the point values?  Just like we pattern match on primitive values and lists, **we can also pattern match on value constructors** (`:` has secretly been a value constructor for lists all this time).
+
+```hs
+distance :: Point -> Point -> Float 
+distance (Point x1 y1) (Point x2 y2) = 
+    let dx = abs (x1 - x2)
+        dy = abs (y1 - y2)
+    in 
+        sqrt (dx*dx + dy*dy)
+```
+
+## Unions
+
+Haskell also supports union types, that is types made up of other struct-based types.  In their most basic forms, unions are enumerations.
+
+In the example below, we are defining a new type `Shape` which has two constructors:  `Circle` and `Rectangle`.
+
+```hs
+data Shape = Circle Point Float
+            | Rectangle Point Point
+```
+
+Notice that when we pattern-match on unions, each constructor gets its own rule (and we can even nest patterns).
+
+```hs
+area :: Shape -> Float 
+area (Circle _ r) = pi * r * r
+area (Rectangle (Point x1 y1) (Point x2 y2)) = abs ((x1 - x2) * (y1 - y2))
+```
