@@ -8,6 +8,7 @@
     - [Guards](#guards)
   - [Anonymous Functions](#anonymous-functions)
   - [Currying](#currying)
+- [Tuples](#tuples)
 - [Lists](#lists)
   - [Concatenation](#concatenation)
   - [List Functions](#list-functions)
@@ -16,8 +17,7 @@
     - [Logistic Filtering](#logistic-filtering)
     - [Multiple Lists and Predicates](#multiple-lists-and-predicates)
     - [Nested Comprehensions](#nested-comprehensions)
-- [Tuples](#tuples)
-  - [Tuple Functions](#tuple-functions)
+- [Type System](#type-system)
 
 
 The folllowing notes are based on [Learn You a Haskell for Great Good!](http://learnyouahaskell.com/chapters)
@@ -236,6 +236,53 @@ bigList xs = filter ((<) 5) (xs)
 -- The 5 always gets passed as the first arg of the binary operator <
 ```
 
+
+# Tuples
+
+Tuples are another data type that allows you to store multiple values as one.  However, there are some significant differences with lists:
+
+- **Tuples have a fixed length** - Use tuples when you know exactly how many entries a piece of data should have.  Tuples are much more rigid because each tuple of length $n$ is its own type; so you can't write a general function to append to all tuples.
+
+```hs
+-- This gives a mistake by the compiler
+-- A tuple is not the same type as a triple, so list is not homogenous
+wrong = [(1,2), (3,4), (1,1,1)]
+-- Same with this case
+-- A pair of numbers is not the same type as a pair of a string and a number
+wrong' = [(1,2), ("centre", 2)]
+```
+
+- **Tuples can be heterogeneous** - You can store more than one data type in a tuple.
+
+```hs
+people = [("John","Doe",33), ("Jane","Doe",29) ]
+```
+
+- The are **no singleton tuples** - You cannot have a tuple with only one element.
+
+`fst` takes a pair and returns its first component.
+
+`snd` takes a pair and returns its second component.
+
+`zip` takes two lists and then zips them together into one list by joining the matching elements into tuples - the first elements go together, the second go together, etc. 
+
+```hs
+xs = [1,2,3,4]
+ys = ["one","two","three","four"]
+zip xs ys
+-- [(1,"one"),(2,"two"),(3,"three"),(4,"four")]
+```
+
+It's especially useful for when you want to combine two lists in a way or traverse two lists simultaneously. 
+
+If the two list lengths don't match, the longer list simply gets cut off to match the length of the shorter one.
+
+```hs
+xs = [1..]
+ys = [1,2,3,4]
+zip xs ys
+-- [(1,1),(2,2),(3,3),(4,4)]
+```
 
 
 # Lists
@@ -504,52 +551,5 @@ xxs' = [[x | x <- xs, odd x] | xs <- xxs]
 -- [[1,3,5,3,1,5],[1,3,5,7,9],[1,1,3,1,3,3]]
 ```
 
-# Tuples
 
-Tuples are another data type that allows you to store multiple values as one.  However, there are some significant differences with lists:
-
-- **Tuples have a fixed length** - Use tuples when you know exactly how many entries a piece of data should have.  Tuples are much more rigid because each tuple of length $n$ is its own type; so you can't write a general function to append to all tuples.
-
-```hs
--- This gives a mistake by the compiler
--- A tuple is not the same type as a triple, so list is not homogenous
-wrong = [(1,2), (3,4), (1,1,1)]
--- Same with this case
--- A pair of numbers is not the same type as a pair of a string and a number
-wrong' = [(1,2), ("centre", 2)]
-```
-
-- **Tuples can be heterogeneous** - You can store more than one data type in a tuple.
-
-```hs
-people = [("John","Doe",33), ("Jane","Doe",29) ]
-```
-
-- The are **no singleton tuples** - You cannot have a tuple with only one element.
-
-
-## Tuple Functions
-
-`fst` takes a pair and returns its first component.
-
-`snd` takes a pair and returns its second component.
-
-`zip`takes two lists and then zips them together into one list by joining the matching elements into tuples - the first elements go together, the second go together, etc. 
-
-```hs
-xs = [1,2,3,4]
-ys = ["one","two","three","four"]
-zip xs ys
--- [(1,"one"),(2,"two"),(3,"three"),(4,"four")]
-```
-
-It's especially useful for when you want to combine two lists in a way or traverse two lists simultaneously. 
-
-If the two list lengths don't match, the longer list simply gets cut off to match the length of the shorter one.
-
-```hs
-xs = [1..]
-ys = [1,2,3,4]
-zip xs ys
--- [(1,1),(2,2),(3,3),(4,4)]
-```
+# Type System

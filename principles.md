@@ -14,6 +14,7 @@
     - [Delaying Evaluation](#delaying-evaluation)
   - [Non-Strict Semantics in Haskell](#non-strict-semantics-in-haskell)
   - [Lexical Closures](#lexical-closures)
+- [Type Systems](#type-systems)
 
 ---
 
@@ -362,7 +363,7 @@ foldl f !acc (x:xs) =
 
 **Free Variable:** An identifier in a function is said to be a free variable if its used locally, but defined in an enclosing scope of the function.
 
-**Closure:** A record that stores a function, along with an environment.  The environment is a mapping associating each free variable of the function with the *value or reference to which the name was bound when the closure was created*.
+**Closure:** A record that stores a function, along with an environment.  The environment is a mapping associating each free variable of the function with the *value or reference to which the name was bound when the closure was created*. In particular, **a closure is a value** and not an expression.
 
 In the following example, each of the three `print_i` functions in `flist` is storing a reference and not a value.  Thus they are all pointing to the address of the variable `i` (which terminates as 3) and so they all store the same address in the closure.
 
@@ -370,11 +371,29 @@ In the following example, each of the three `print_i` functions in `flist` is st
 def make_functions():
   flist = []
   for i in [1,2,3]:
-    # II. The closure has stored the fact that i=3 at this point
+    # II. The closure of f has stored a pointer to i.  But i=3 after the loop ends
     def print_i():
       print(i)
       ## III. According to the closure lookup, we print 3
     flist.append(print_i)
+  return flist
+
+for f in make_functions():
+  # I. We call f here. Using lexical scoping, Python goes back to the definition
+  f()
+```
+
+The way to fix this is to wrap the value that we want to store in another closure:
+
+```py
+def make_printer(i):
+  return lambda : print(i)
+
+def make_functions():
+  flist = []
+  for i in [1,2,3]:
+    # II. The closure of make-printer will store i as the number it was in the loop
+    flist.append(make_printer(i))
   return flist
 
 for f in make_functions():
@@ -387,8 +406,31 @@ When a function is evaluated, all of its free variables are looked up in the clo
 > Lexical scoping resolves names based on source code, whereas dynamic scoping resolves names based on the program state at runtime.
 
 
+# Type Systems
 
+**Type:** Set of *values* with a *set of behaviours* for those values.
 
+**Type System:** Set of rules in a programming language governing the semantics of its types (e.g. how types are defined, how types can be expressed, how types affect semantics of the language).
+
+**Strongly-Typed Language:** These languages tend to have stricter rules at compile time, and that is where most events will occur.  Thus, every value has a fixed type during the execution of a program.
+
+**Weakly-Typed Language:** These languages have looser typing rules and may produce unpredictable results or may perform implicit type conversion at runtime.  The following is an example of *type coercion* in JavaScript:
+
+```js
+"5" + 6
+// 56
+
+typeof("5" + 6)
+//'string'
+```
+
+Strong vs. weak typing is not a binary property, but a spectrum of nuanced rules.  Even in a very strongly-typed language, there is still the question of "when does the program know about and check types?"
+
+**Static Typing:** The type of an expression is determined, before execution, directly from the source code.  Most of these languages require a type signature at the time of a variable's declaration (but this is not a hard rule).
+
+> **Static type analysis can be used as a compiler optimization.**  If compile-time guarantees the types of all expressions, we can drop the type-checks at runtime.
+
+**Dynamic Typing:**  Type-checking is performed at runtime, thus type error is a *runtime error*. 
 
 
 
