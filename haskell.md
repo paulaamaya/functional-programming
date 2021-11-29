@@ -20,8 +20,11 @@
 - [Type System](#type-system)
   - [Basics](#basics)
   - [Currying & Sectioning](#currying--sectioning)
-  - [Defining Types](#defining-types)
-  - [Unions](#unions)
+  - [Algebraic Data Types](#algebraic-data-types)
+    - [Defining Types](#defining-types)
+    - [Unions](#unions)
+  - [Polymorphism](#polymorphism)
+    - [Generic Polymorphism](#generic-polymorphism)
 
 
 The folllowing notes are based on [Learn You a Haskell for Great Good!](http://learnyouahaskell.com/chapters)
@@ -605,7 +608,9 @@ addToAll2 n lst = map (+ n) lst
 addToAll3 n = map (+ n)
 ```
 
-## Defining Types
+## Algebraic Data Types
+
+### Defining Types
 
 We finally get to define our own types in Haskell!  Before that it is worth noting that Haskell will reuse expressions/symbols between its,
 
@@ -638,7 +643,7 @@ distance (Point x1 y1) (Point x2 y2) =
         sqrt (dx*dx + dy*dy)
 ```
 
-## Unions
+### Unions
 
 Haskell also supports union types, that is types made up of other struct-based types.  In their most basic forms, unions are enumerations.
 
@@ -655,4 +660,32 @@ Notice that when we pattern-match on unions, each constructor gets its own rule 
 area :: Shape -> Float 
 area (Circle _ r) = pi * r * r
 area (Rectangle (Point x1 y1) (Point x2 y2)) = abs ((x1 - x2) * (y1 - y2))
+```
+
+These constructor definitions coupled with unions, come together to form **algebraic data types** - i.e. composite types, or types formed by combining other types.  These types usually specify the shape of an element through its *variants*.  For more information, read [this article](https://en.wikipedia.org/wiki/Algebraic_data_type).
+
+## Polymorphism
+
+### Generic Polymorphism
+
+The best way to talk about this is to examine lists in Haskell.  It turns out `[]` is actually not a type itself, but a *type constructor*.  You need to know what is in your list before you can actually produce a type.
+
+```hs
+data [] a = []
+            | (:) a ([] a)
+```
+
+**Type variable:** Identifier in a type expression that can be instantiated to any type.
+
+**Type constructor:** A function that takes a type `a` and creates a a new type with the type variable instantiated (e.g. note that these are different types `[] Bool`, `[] String`).
+
+This is an example of **generic polymorphism**.  The function or data type is written generically, so that it can handle `a` values identically without depending on their type.  You can think about generic functions as operating on the "outer shape" of the data structure, regardless of the "inner shape" of the data's content.
+
+```hs
+:t []
+-- [] :: [a]
+:t (:)
+-- (:) :: a -> [a] -> [a]
+:t head
+-- head :: [a] -> a
 ```
