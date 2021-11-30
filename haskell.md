@@ -25,6 +25,7 @@
     - [Unions](#unions)
   - [Polymorphism](#polymorphism)
     - [Generic Polymorphism](#generic-polymorphism)
+    - [Ad-Hoc Polymorphism](#ad-hoc-polymorphism)
 
 
 The folllowing notes are based on [Learn You a Haskell for Great Good!](http://learnyouahaskell.com/chapters)
@@ -668,7 +669,7 @@ These constructor definitions coupled with unions, come together to form **algeb
 
 ### Generic Polymorphism
 
-The best way to talk about this is to examine lists in Haskell.  It turns out `[]` is actually not a type itself, but a *type constructor*.  You need to know what is in your list before you can actually produce a type.
+The best way to talk about this is to examine lists in Haskell.  It turns out `[]` is actually not a type itself, but a *type constructor*; you need to know what is in your list before you can actually produce a type.  
 
 ```hs
 data [] a = []
@@ -679,13 +680,54 @@ data [] a = []
 
 **Type constructor:** A function that takes a type `a` and creates a a new type with the type variable instantiated (e.g. note that these are different types `[] Bool`, `[] String`).
 
-This is an example of **generic polymorphism**.  The function or data type is written generically, so that it can handle `a` values identically without depending on their type.  You can think about generic functions as operating on the "outer shape" of the data structure, regardless of the "inner shape" of the data's content.
-
 ```hs
 :t []
 -- [] :: [a]
 :t (:)
 -- (:) :: a -> [a] -> [a]
+```
+
+However, all the functions that can be called on a list, behave the same way regardless of what is in the list. This is an example of **generic polymorphism**.  
+
+The function or data type is written generically, so that it can handle `a` values *identically* independent of their type.  You can think about generic functions as operating in the same way on the "outer shape" of the data structure, regardless of the "inner shape" of the data's content.
+
+```hs
 :t head
 -- head :: [a] -> a
 ```
+
+> Generic polymorphism allows a function or a data type to be written generically, so that it **can handle values uniformly without depending on their type**.
+
+### Ad-Hoc Polymorphism
+
+**Typeclass:** Set of types plus a set of functions that must be able to operate on these types, although their implementation may be completely different depending on the type.
+
+**Member:**  A type is a member of a typeclass if all the type class' functions have been implemented.
+
+A typeclass is like an interface - if a type is a part of a typeclass, that means that it supports and implements the behavior the typeclass.
+
+```hs
+class Show a where
+  show :: a -> String
+```
+
+For instance, to make our `Point` class a member of the `Show` typeclass, we need to do the following:
+
+```hs
+-- make Point a member of typeclass Show
+instance Show Point where
+    show (Point x y) = "(" ++ show x ++ "," ++ show y ++ ")"
+```
+
+**Typeclass Constraint:** Restricts the type of [type variables](#generic-polymorphism) to members of the typeclass.
+
+Consider the type signature of the `Eq` function:
+
+```hs
+:t (==)
+-- (==) :: (Eq a) => a -> a -> Bool  
+```
+
+Everything before the `=>` symbol is called a class constraint. The equality function takes any two values BUT the type of those two values must be a member of the `Eq`  class (this was the class constraint).
+
+> Ad hoc polymorphism allows a function to behave differently, depending on the type of the argument upon which it is applied.
