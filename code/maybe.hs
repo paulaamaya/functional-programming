@@ -1,3 +1,4 @@
+import W04prac (alookup)
 safeDiv :: Int -> Int -> Maybe Int
 safeDiv _ 0 = Nothing
 safeDiv x y = Just (div x y)
@@ -36,3 +37,7 @@ safeFourth xs = safeTail xs `andThen` safeTail `andThen` safeTail `andThen` safe
 safeDiv2 :: Int -> Int -> Either String Int
 safeDiv2 _ 0 = Left "Division by 0"
 safeDiv2 x y = Right (div x y)
+
+alookup :: AssocList -> String -> Maybe Int 
+alookup [] s = Nothing 
+alookup ((k,v):rest) s = if k == s then Just v else alookup rest s

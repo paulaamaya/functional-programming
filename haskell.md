@@ -23,9 +23,10 @@
   - [Algebraic Data Types](#algebraic-data-types)
     - [Defining Types](#defining-types)
     - [Unions](#unions)
-  - [Polymorphism](#polymorphism)
-    - [Generic Polymorphism](#generic-polymorphism)
-    - [Ad-Hoc Polymorphism](#ad-hoc-polymorphism)
+- [Polymorphism](#polymorphism)
+  - [Generic Polymorphism](#generic-polymorphism)
+  - [Ad-Hoc Polymorphism](#ad-hoc-polymorphism)
+    - [Higher-Order Typeclasses](#higher-order-typeclasses)
 
 
 The folllowing notes are based on [Learn You a Haskell for Great Good!](http://learnyouahaskell.com/chapters)
@@ -665,9 +666,9 @@ area (Rectangle (Point x1 y1) (Point x2 y2)) = abs ((x1 - x2) * (y1 - y2))
 
 These constructor definitions coupled with unions, come together to form **algebraic data types** - i.e. composite types, or types formed by combining other types.  These types usually specify the shape of an element through its *variants*.  For more information, read [this article](https://en.wikipedia.org/wiki/Algebraic_data_type).
 
-## Polymorphism
+# Polymorphism
 
-### Generic Polymorphism
+## Generic Polymorphism
 
 The best way to talk about this is to examine lists in Haskell.  It turns out `[]` is actually not a type itself, but a *type constructor*; you need to know what is in your list before you can actually produce a type.  
 
@@ -698,7 +699,7 @@ The function or data type is written generically, so that it can handle `a` valu
 
 > Generic polymorphism allows a function or a data type to be written generically, so that it **can handle values uniformly without depending on their type**.
 
-### Ad-Hoc Polymorphism
+## Ad-Hoc Polymorphism
 
 **Typeclass:** Set of types plus a set of functions that must be able to operate on these types, although their implementation may be completely different depending on the type.
 
@@ -731,3 +732,26 @@ Consider the type signature of the `Eq` function:
 Everything before the `=>` symbol is called a class constraint. The equality function takes any two values BUT the type of those two values must be a member of the `Eq`  class (this was the class constraint).
 
 > Ad hoc polymorphism allows a function to behave differently, depending on the type of the argument upon which it is applied.
+
+### Higher-Order Typeclasses
+
+We've used the function `map` to map over lists.  But this is just an implementation of the polymorphic fuction `fmap` which performs *structure-preserving mapping over containers*.
+
+```hs
+class Functor f where
+  fmap :: (a -> b) -> f a -> f b
+
+:t fmap
+-- Functor f => (a -> b) -> f a -> f b
+```
+
+**Functor:** A typeclass that supports mapping where,
+
+- `(a -> b)` is the function that does the mapping
+- `f a` is the functor type constructor applied to `a` (so `f a` is a mappable container)
+- `f b` is the functor type constructor applied to `b` (so another mappable container `f b` is returned)
+
+
+An abstract datatype `f a`, which has the ability for its value(s) to be mapped over, can become an instance of the `Functor` typeclass.
+
+Notice that, this time, the typeclass variable is a type constructor itself! We call `Functor` a **higher-order typeclass** since it takes in a type constructor rather than a type.  That is to say, a new Functor `f b` can be made from `f a` by transforming all of `f a`'s value(s), whilst leaving the structure of `f` itself unmodified.
