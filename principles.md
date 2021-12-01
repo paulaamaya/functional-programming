@@ -15,6 +15,8 @@
   - [Non-Strict Semantics in Haskell](#non-strict-semantics-in-haskell)
   - [Lexical Closures](#lexical-closures)
 - [Type Systems](#type-systems)
+- [Appendix](#appendix)
+  - [OOP: A New Approach](#oop-a-new-approach)
 
 ---
 
@@ -431,6 +433,57 @@ Strong vs. weak typing is not a binary property, but a spectrum of nuanced rules
 > **Static type analysis can be used as a compiler optimization.**  If compile-time guarantees the types of all expressions, we can drop the type-checks at runtime.
 
 **Dynamic Typing:**  Type-checking is performed at runtime, thus type error is a *runtime error*. 
+
+# Appendix
+
+## OOP: A New Approach
+
+We said at the beginning that functional programming and OOP were actually equivalent, in that both models had equivalent computational power.  It turns out implementing the concept of an "object" is very straight-foward using the concept of a closure!
+
+If you think about it, the "instace attributes" of an object are free variables that the object must be able to refer to, but that the client can't access without sending a message to the object.  Well closures provide this level of encapsulation too!
+
+```rkt
+(define (Point x y)
+    (lambda (msg)
+            ;;; attributes
+    (cond   [(equal? msg 'x) x]
+            [(equal? msg 'y) y]
+            ;;; methods
+            [(equal? msg 'to-string) (lambda () (format "(~a, ~a)" x y))]
+            [(equal? msg ''distance)
+                (lambda (other-point)
+                    (let ([dx (- x (other-point 'x))]
+                          [dy (- y (other-point 'y))])
+                          (sqrt (+ (* dx dx) (* dy dy)))))]
+            [else "Unrecognized message"])))
+```
+```rkt
+(define p (Point 1 2))
+
+p
+;;; #<procedure>
+
+(p 'to-string)
+;;; #<procedure>
+
+((p 'to-string))
+;;; "(1, 2)"
+```
+
+While this is very cool, Racket macros will allow us to emulate a "class" in a way that we don't have to repeat all this message-handling code with `cond`.  The code will look something like this:
+
+```rkt
+(class Person
+    ;;; expression listing all attributes
+    (name age)
+    ;; methods
+    [(greet other-person)
+        (string-append "Hello, " (other-person 'name) ". I am" name ".")]
+
+    [(can-vote) (>= age 18)])
+```
+
+For more information on this, consult the `Pattern-Based Macros` section of the Racket notes.
 
 
 
