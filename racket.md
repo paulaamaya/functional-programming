@@ -11,6 +11,9 @@
   - [Currying](#currying)
 - [Lists](#lists)
   - [List Functions](#list-functions)
+- [Pattern-Based Macros](#pattern-based-macros)
+  - [Multiple Pattern Rules](#multiple-pattern-rules)
+  - [Macro Ellipses](#macro-ellipses)
   
   
 # Fundamentals
@@ -411,3 +414,98 @@ The `apply` function takes in a function `f` and a list, then applies `f` once t
 ```
 
 More generally we have that, `(apply f '(x1 x2 x3 ... xn)) == (f x1 x2 x3 ... xn)`.
+
+# Pattern-Based Macros
+
+Racket allows developers to easily extend the language and even embed Domain-Specific Languages (DSLs) into it.
+
+**Macro:** A function that takes in source code, and returns new source code (e.g. the `C` preprocessor).
+
+**Macro Expansion:** Intermediate process between parsing and generation of machine code where macros are applied to the AST to generate a new AST.  
+
+> The AST that is used to produce machine code may be very different from the AST produced by the parser, depending on the macros applied to the source code.
+
+The most common use of macros is to *introduce new syntax* into a programming language.  Say we want to introduce list comprehensions into Racket, so that we have the following grammar:
+
+```
+(list-comp <out-expr> : <id> <- <list-expr>)
+```
+
+The list comprehension capability can sort of be implemented in Racket using the `map` function.  It doesn't meet the syntax requirements, but it does lead to a very nice generalization.
+
+```
+GOAL: (list-comp <out-expr> : <id> <- <list-expr>)
+MAP:  (map (lambda (<id>) <out-expr>) <list-expr>)
+```
+
+This step is actually the most important one, because it generalizes the syntactic transformation that the interpreter needs to perform - i.e. a `list-comp` call is really just syntactic sugar for a very specific `map` call.  Here is how we define the pattern-based macro:
+
+```rkt
+(define-syntax  list-comp       ; Name of macro
+    (syntax-rules (: <-)        ; Literal keywords
+        [(list-comp <out-expr> : <id> <- <list-expr>)   ; Pattern with pattern vars
+        (map (lambda (<id>) <out-expr>) <list-expr>)])) ; Template
+
+(list-comp (+ x 1) : x <- (list 1 2 3 4))
+; '(2 3 4 5)
+```
+
+**Literal Keywords:** Parts of the syntax rule that must appear literally in the syntax expression to match.  If these are omitted, the compiler will not be able to match the expression.
+
+**Pattern Variable:** Idenitifier that can be bound to an arbitrary given expression when the pattern matches.  The variable is bound to the expression itself and *not the value of the expression*.  Thus, the value of pattern variables are not evaluated before binding.
+
+Racket macros operate directly on ASTs; when the substitution occurs the expresion structure of the Racket program has already been determined.  The macro expansion only swaps subexpressions matching a pattern the template (as found in the corresponding macro definition). *Free identifiers in a macro obey lexical scope, meaning they are bound to whetever identifier is in scope where the macro is originally defined*.  For this reason, they are referred to as hygienic macros.
+
+**Hygienic macros:**  Macros whose expansion is guaranteed not to cause the accidental capture of identifiers.
+
+As a conseqeunce of macro hygiene in Racket, identifiers within a macro body are not accessible outside of the macro body and are only local to the macro.
+
+```rkt
+(define-syntax defs
+    (syntax-rules (defs)
+    [(defs) (begin 
+        (define x 1)
+        (define y (+ 10))
+        (+ x y))]))
+```
+
+```rkt
+(defs)
+; 11
+x
+; x: undefined
+```
+
+## Multiple Pattern Rules
+
+Much like with regular pattern-matching, if we want to additional pattern rules to our macro we simply pattern match.  Say we want to add filtering to our list comprehension:
+
+```rkt
+(define-syntax  list-comp                                   
+    (syntax-rules (: <- if)                                 
+        [(list-comp <out-expr> : <id> <- <list-expr>)      
+            (map (lambda (<id>) <out-expr>) <list-expr>)] 
+        [(list-comp <out-expr> : <id> <- <list-expr> if <condition>)
+            (map (lambda (<id>) <out-expr>)
+            ; filter the list before mapping 
+            (filter (lambda (<id>) <condition>) <list-expr>)]))
+```
+
+## Macro Ellipses
+
+In the case that we want to define a macro that can be appiled to an arbitrary number of expressions, we use the ellipsis `<expr> ...` which matches 0 or more instances of `<expr>`.  **Do not think of the ellipsis as a separate entity**, but rather as a regex modifier to the `<expr>`.  In fact, we say that the ellipsis are bound to the `<expr>` and they must *both* appear in the rule's template.
+
+```rkt
+(define-syntax my-and
+    (syntax-rules ()
+    [(my-and) (void)]
+    [(my-and <bool>) <bool>]
+    [(my-and <bool> <next-bools> ...) (and <bool> (my-and <next-bools> ...))]))
+
+
+(define-syntax my-cond
+    (syntax-rules (else)
+    [(my-cond) (void)]
+    [(my-cond [else e1]) e1]
+    [(my-cond [<pred> <e1>] <other-pairs> ...) (if <pred> <e1> (my-cond <other-pairs> ...))]))
+```
