@@ -443,34 +443,36 @@ We said at the beginning that functional programming and OOP were actually equiv
 If you think about it, the "instace attributes" of an object are free variables that the object must be able to refer to, but that the client can't access without sending a message to the object.  Well closures provide this level of encapsulation too!
 
 ```rkt
+; without macros we hard code for each class
 (define (Point x y)
     (lambda (msg)
-            ;;; attributes
+            ; attributes
     (cond   [(equal? msg 'x) x]
             [(equal? msg 'y) y]
-            ;;; methods
+            ; methods
             [(equal? msg 'to-string) (lambda () (format "(~a, ~a)" x y))]
             [(equal? msg ''distance)
                 (lambda (other-point)
                     (let ([dx (- x (other-point 'x))]
                           [dy (- y (other-point 'y))])
                           (sqrt (+ (* dx dx) (* dy dy)))))]
-            [else "Unrecognized message"])))
+            [else "Unrecognized message"])
+    )
+)
 ```
 ```rkt
 (define p (Point 1 2))
 
 p
-;;; #<procedure>
-
+; #<procedure>
 (p 'to-string)
-;;; #<procedure>
-
+; #<procedure>
 ((p 'to-string))
-;;; "(1, 2)"
+; "(1, 2)"
 ```
 
-While this is very cool, Racket macros will allow us to emulate a "class" in a way that we don't have to repeat all this message-handling code with `cond`.  The code will look something like this:
+While this is very cool, Racket macros will allow us to emulate a "class" in a way that we don't have to hard code constructor and this message-handling code.  Because we are interested in deifning new indetifiers for class constructors, we turn to macros to abstract the details of a class.
+
 
 ```rkt
 (class Person
@@ -483,7 +485,7 @@ While this is very cool, Racket macros will allow us to emulate a "class" in a w
     [(can-vote) (>= age 18)])
 ```
 
-For more information on this, consult the `Pattern-Based Macros` section of the Racket notes.
+
 
 
 
