@@ -10,6 +10,7 @@
     (syntax-rules (: <- if)                                 ;Literal keywords
         [(list-comp <out-expr> : <id> <- <list-expr>)       ;Pattern 
             (map (lambda (<id>) <out-expr>) <list-expr>)]   ;Template
-        [(list-comp <out-expr> : <id> <- <list-expr> if <condition>)
-            (map (lambda (<id>) <out-expr>) 
-            (filter (lambda (<id>) <condition>) <list-expr>)]))
+        [(list-comp <out-expr> : <id> <- <list-expr> if <condition> ...)
+            (map (lambda (<id>) <out-expr>)
+            ; filter the list to map across first 
+            (filter (lambda (<id>) (and <condition> ...)) <list-expr>))]))

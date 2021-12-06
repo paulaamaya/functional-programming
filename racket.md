@@ -456,9 +456,9 @@ This step is actually the most important one, because it generalizes the syntact
 
 Racket macros operate directly on ASTs; when the substitution occurs the expresion structure of the Racket program has already been determined.  The macro expansion only swaps subexpressions matching a pattern the template (as found in the corresponding macro definition). *Free identifiers in a macro obey lexical scope, meaning they are bound to whetever identifier is in scope where the macro is originally defined*.  For this reason, they are referred to as hygienic macros.
 
-**Hygienic macros:**  Macros whose expansion is guaranteed not to cause the accidental capture of identifiers.
+**Hygienic macros:**  Macros that follow lexical scoping and do not capture surrounding indentifiers.  Their expansion is guaranteed not to cause the accidental capture of identifiers.
 
-As a conseqeunce of macro hygiene in Racket, identifiers within a macro body are not accessible outside of the macro body and are only local to the macro.
+As a consequence of macro hygiene in Racket, **identifiers within a hygienic macro body are not accessible outside** of the macro body and are only local to the macro.
 
 ```rkt
 (define-syntax defs

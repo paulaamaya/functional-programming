@@ -473,16 +473,29 @@ p
 
 While this is very cool, Racket macros will allow us to emulate a "class" in a way that we don't have to hard code constructor and this message-handling code.  Because we are interested in deifning new indetifiers for class constructors, we turn to macros to abstract the details of a class.
 
-
 ```rkt
-(class Person
-    ;;; expression listing all attributes
-    (name age)
-    ;; methods
-    [(greet other-person)
-        (string-append "Hello, " (other-person 'name) ". I am" name ".")]
+(define-syntax my-class
+    (syntax-rules (method)
+        [(my-class <class-name> (<att> ...) (method (<method-name> <param> ...) <body>) ...)
+        (define (<class-name> <att> ...)
+            (lambda (msg)
+                (cond   [(equal? msg '<att>) <att>] ...
+                        [(equal? msg '<method-name>) (lambda (<param> ...) <body>)] ...
+                        [else "Unrecognized message"])))]))
+```
+```rkt
+; create the "constructor"
+(my-class Point (x y)
+    (method (distance other-point)
+        (let* ([dx (- x (other-point 'x))]
+              [dy (- y (other-point 'y))])
+              (sqrt (+ (* dx dx) (* dy dy))))))
 
-    [(can-vote) (>= age 18)])
+; instantiate two objects
+(define p (Point 1 2))
+(define q (Point 1 1))
+((p 'distance) q)
+; 1
 ```
 
 
