@@ -117,6 +117,8 @@ The `and` short-circuits, it stops and returns `#f` when an expression produces 
 
 Furthermore, both logical operators work with any number of expressions.
 
+---
+
 # Functions
 
 Function calls are perfomed within parentheses - opening parentheses, calling the function, then passing parameters, all separated by spaces.
@@ -300,6 +302,7 @@ You can think of currying as a way to accumulate arguments of a function until a
 
 > "These are the arguments I know so far, I'll give you the rest later"
 
+---
 
 # Lists
 
@@ -414,6 +417,8 @@ The `apply` function takes in a function `f` and a list, then applies `f` once t
 ```
 
 More generally we have that, `(apply f '(x1 x2 x3 ... xn)) == (f x1 x2 x3 ... xn)`.
+
+---
 
 # Pattern-Based Macros
 

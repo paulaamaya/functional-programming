@@ -44,6 +44,8 @@ ghci> :t sqrt
 sqrt :: Floating a => a -> a
 ```
 
+---
+
 # Fundamentals
 
 Binding names to a value in Haskell is pretty straightoforward,
@@ -72,6 +74,7 @@ else "I'm too lazy to keep checking"
 
 This can be refactored even further using [pattern matching](#pattern-matching).
 
+---
 
 # Functions
 
@@ -154,6 +157,8 @@ cylinderArea r h =  let sideArea = 2 * pi * r * h
                         topArea = pi * (r ^ 2)
                     in sideArea + 2 * topArea
 ```
+
+---
 
 ## Pattern Matching
 
@@ -245,6 +250,7 @@ bigList xs = filter ((<) 5) (xs)
 -- The 5 always gets passed as the first arg of the binary operator <
 ```
 
+---
 
 # Tuples
 
@@ -293,6 +299,7 @@ zip xs ys
 -- [(1,1),(2,2),(3,3),(4,4)]
 ```
 
+---
 
 # Lists
 
@@ -504,6 +511,8 @@ for x in lst:
   acc = combine(acc, x)
 ```
 
+---
+
 ## List Comprehension
 
 ### Predicate Filtering
@@ -560,6 +569,7 @@ xxs' = [[x | x <- xs, odd x] | xs <- xxs]
 -- [[1,3,5,3,1,5],[1,3,5,7,9],[1,1,3,1,3,3]]
 ```
 
+---
 
 # Type System
 
@@ -609,6 +619,8 @@ addToAll1 n lst = map (\x -> x + n) lst
 addToAll2 n lst = map (+ n) lst
 addToAll3 n = map (+ n)
 ```
+
+---
 
 ## Algebraic Data Types
 
@@ -665,6 +677,8 @@ area (Rectangle (Point x1 y1) (Point x2 y2)) = abs ((x1 - x2) * (y1 - y2))
 ```
 
 These constructor definitions coupled with unions, come together to form **algebraic data types** - i.e. composite types, or types formed by combining other types.  These types usually specify the shape of an element through its *variants*.  For more information, read [this article](https://en.wikipedia.org/wiki/Algebraic_data_type).
+
+---
 
 # Polymorphism
 

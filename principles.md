@@ -15,8 +15,12 @@
   - [Non-Strict Semantics in Haskell](#non-strict-semantics-in-haskell)
   - [Lexical Closures](#lexical-closures)
 - [Type Systems](#type-systems)
+- [Streams](#streams)
+  - [Self-Updating Streams](#self-updating-streams)
+- [Continuation](#continuation)
 - [Appendix](#appendix)
-  - [OOP: A New Approach](#oop-a-new-approach)
+  - [A New Approach to OOP](#a-new-approach-to-oop)
+  - [The Ambiguous Choice Operator `-<`](#the-ambiguous-choice-operator--)
 
 ---
 
@@ -80,6 +84,8 @@ In imperative programming languages, we need to define the semantics (i.e the me
 
 **Axiomatic Semantics:** Apply meaning to expressions by effect on assertions about the program state. The assertions are predicates with variables, where the variables define the state of the program (e.g. variants, invariants, etc).
 
+---
+
 # Lambda Calculus
 
 Lambda calculus is a formal system for expressing computation based on function defintion and application, using variable binding and substitution.  In this model, **expressions are the fundamental and only units of computation**.
@@ -117,6 +123,8 @@ In programming we say that a **mathematical pure function** is one that meets th
 
 Much like in mathematics, identifier bindings in pure functional programming are immutable.  Thus, we say that an identitfier is **referentially transparent** if it can be substituted with its value in the source code without changing the meaning of the program.
 
+---
+
 # Lists and Structural Recursion
 
 Imperative languages naturally process lists uaing loops, but pure functional programming does not permit the mutation of an index identifier to process each element one at a time.  So we define lists recursively as:
@@ -136,6 +144,8 @@ While the grammar for creating a list in **Haskell** is:
 ```
 
 This recursive definition of lists tells us, not only about their representation, but also how to operate on them (Hint: It's recursive!).  We want to operate on the first, element of the list then recusively operate on the rest.
+
+---
 
 # Tail Recursion
 
@@ -173,6 +183,8 @@ The evaluation of `(sum-tail '(1 2 3 4))` produces the function calls `(sum-help
 ```
 
 can really be viewed, not as five function calls, but as an iterative process that executes the function body and updates the variables `lst` and `agg` with every iteration.
+
+---
 
 # Programming with ASTs
 
@@ -249,6 +261,8 @@ numPlus (Identifier "+") = 1
 numPlus (Identifier _) = 0
 numPlus (NumLiteral _) = 0
 ```
+
+---
 
 # Operational Semantics
 
@@ -407,6 +421,8 @@ When a function is evaluated, all of its free variables are looked up in the clo
 
 > Lexical scoping resolves names based on source code, whereas dynamic scoping resolves names based on the program state at runtime.
 
+---
+
 
 # Type Systems
 
@@ -430,13 +446,104 @@ Strong vs. weak typing is not a binary property, but a spectrum of nuanced rules
 
 **Static Typing:** The type of an expression is determined, before execution, directly from the source code.  Most of these languages require a type signature at the time of a variable's declaration (but this is not a hard rule).
 
+**Dynamic Typing:**  Type-checking is performed at runtime, thus type error is a *runtime error*. 
+
 > **Static type analysis can be used as a compiler optimization.**  If compile-time guarantees the types of all expressions, we can drop the type-checks at runtime.
 
-**Dynamic Typing:**  Type-checking is performed at runtime, thus type error is a *runtime error*. 
+---
+
+# Streams
+
+Streams are essentially a "lazy" analogue of the list data type.  For example, we know that in Racket, all the elements of a list are eagerly evaluated before the list is constructed.
+
+```rkt
+(define items (list 1 2 (/ 1 0))) 
+; /: division by zero
+```
+
+Yet, this is not always necessary; when we traverse a list we are more concerned with processing one item at a time than with knowing all the other items have been evaluated.  This brings us to the recursive definition of a **stream**:
+
+1. A stream is either empty or
+2. A *thunk wrapping a value* combined with a *thunk wrapping another stream*.
+
+Notice that thunks are used to delay the evaluation of the elements in the stream until they are called.  We say that **streams decouple the creation of data from the consumption of said data**.
+
+```rkt
+; Creates a stream containing the given values
+; (make-stream <expr> ...) -> stream
+(define-syntax make-stream
+    (syntax-rules ()
+        [(make-stream <expr>) (s-cons <expr> 's-null)]
+        [(make-stream <expr> <other-expr> ...)
+        (s-cons <expr> (make-stream <other-expr> ...))]))
+```
+
+Since Haskell uses lazy evaluation for all of its function calls, the `:` operator does not evaluate all its elements before constructing the list.  Haskell lists have been streams all along.
+
+```hs
+x = [1, 2, error "error"]
+-- no error warning
+head x
+-- 1
+```
+
+## Self-Updating Streams
+
+We've established that streams are mainly focused on the consumption of data, rather that its creation.  So we would like to create some sort of "iteration" capability for our Racket stream.  But I thought Racket doesn't support mutation? This is precisely why a function won't do.
+
+We are going to define a macro called `next!` (the `!` is used to denote mutation) that does the following:
+
+- If the stream is non-empty, update the stream to `s-rest` and return `s-first`
+- If the stream is empty, return the symbol `'DONE`.
+
+```rkt
+(define-syntax next!
+    (syntax-rules ()
+        [(next! <s>)
+        (if (s-null? <s>)
+            'DONE
+            (let* ([temp <s>])
+                (begin
+                    (set! <s> (s-rest <s>))
+                    (s-first temp))))]))
+```
+
+```rkt
+(define g (make-stream 1 2 (/ 3 0) 4))
+(next! g)
+; 1
+(next! g)
+; 2
+(next! g)
+; ERROR /: division by zero
+(next! g)
+; 4
+(next! g)
+; 'DONE
+```
+
+---
+
+# Continuation
+
+**Continuation:** A data structure that *represents the computational process at a given point* in the process's execution. 
+
+- For each subexpression `s`, we define its continuation to be a representation of what remains to be evaluated, **only after `s` has been evaluated**. That is, a representation of the control flow from the moment after `s`' evaluation, up to the final evaluation of the enclosing top-level expresssion.
+- An expression's continuation is indpendent from the expression itself, but dependent from the expression's position in the larger program.
+
+**First-class Continuations:** Constructs that give a programming language the ability to save the execution state at any point and return to that point later, possibly multiple times.
+
+**Reification:** Process by which an abstract idea about a computer program is turned into an explicit data model created in a programming language. 
+
+Racket *reifies* first-class continuations, meaning that the program can access and manipulate them as easily as it does a list.
+
+
+
+---
 
 # Appendix
 
-## OOP: A New Approach
+## A New Approach to OOP
 
 We said at the beginning that functional programming and OOP were actually equivalent, in that both models had equivalent computational power.  It turns out implementing the concept of an "object" is very straight-foward using the concept of a closure!
 
@@ -498,6 +605,7 @@ While this is very cool, Racket macros will allow us to emulate a "class" in a w
 ; 1
 ```
 
+## The Ambiguous Choice Operator `-<`
 
 
 
