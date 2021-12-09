@@ -535,9 +535,22 @@ We are going to define a macro called `next!` (the `!` is used to denote mutatio
 
 **Reification:** Process by which an abstract idea about a computer program is turned into an explicit data model created in a programming language. 
 
-Racket *reifies* first-class continuations, meaning that the program can access and manipulate them as easily as it does a list.
+Racket *reifies* first-class continuations, meaning that the program can access and manipulate them as easily as it does a list.  It does this trough the `shift` function which follows the following pattern:
 
+```
+(shift <id> <body> ..)
+```
 
+1. The continuation of the `shift` expression is bound to `<id>`.  We will used `k` as the conventional name for this variable.
+2. The `<body>` is evaluated, with `<id>` in scope.
+3. The current continuation `k` is discarded, and the value of the last expression in `<body> ...` is returned.
+
+However, `shift` captures the *entire continuation*, beyond what we may want in  most cases. We can place a sort of breakpoint that `shift` is not allowed to go beyond.
+
+```rkt
+; computation related to the definition of a will not be included in the continuation
+(define a (reset (+ 2 (shift k (* (k 3) (k 4))))))
+```
 
 ---
 
@@ -607,8 +620,34 @@ While this is very cool, Racket macros will allow us to emulate a "class" in a w
 
 ## The Ambiguous Choice Operator `-<`
 
+The ambiguous operator `-<`  is used to generate data and denote possible choices of values.  It takes an arbitrary number of argument subexpressions, and returns a stream of possible values for the whole `-<` expression.
 
+The idea is to provide a number of possible values for an expression in the code.  So we would like the `-<` operator to not only store a stream of choices, but also apply the computational context surrounding it.  For example:
 
+```
+(+ 10 (-< 1 2 (+ 3 4))) -> stream (11, 12, 17)
+```
 
+This computational context is just the continuation of `-<`.  Essentially we want to map the continuation `k` across all the values contained by `-<`, and return a stream of the mapped values.
 
+```rkt
+; Applies k to all elements in the stream
+(define (map-stream k lst)
+    (if (empty? lst)
+        s-null
+        (s-cons (k (first lst)) (map-stream k (rest lst)))))
 
+; naive amb operator
+(define (-< . lst)
+    (shift k (map-stream k lst)))
+```
+```rkt
+(define g (reset (+ 1 (-< 3 4))))
+
+(next! g)
+; 4
+(next! g)
+; 5
+(next! g)
+; 'DONE
+```

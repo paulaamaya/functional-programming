@@ -1,5 +1,7 @@
 #lang racket
 
+(require racket/control)
+
 ; Empty stream value
 (define s-null 's-null)
 
@@ -48,6 +50,13 @@
             [(equal? n 0) s-null]
             [else (s-cons (s-first s) (s-take (s-rest s) (- n 1)))]))
 
+
+; Applies k to all elements in the stream
+(define (map-stream k lst)
+    (if (empty? lst)
+        s-null
+        (s-cons (k (first lst)) (map-stream k (rest lst)))))
+
 ; the iterator next! macro
 (define-syntax next!
     (syntax-rules ()
@@ -58,3 +67,9 @@
                 (begin
                     (set! <s> (s-rest <s>))
                     (s-first temp))))]))
+
+; naive amb operator
+(define (-< . lst)
+    (shift k (map-stream k lst)))
+
+(define g (reset (+ 1 (-< 3 4))))
