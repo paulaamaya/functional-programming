@@ -17,7 +17,9 @@
         [(s-cons <first> <rest>)
         (cons (thunk <first>) (thunk <rest>))]))
 
+; car is general form of (first)
 (define (s-first s) ((car s)))
+; cdr is general from of (rest)
 (define (s-rest s) ((cdr s)))
 
 ; Creates a stream containing the given values

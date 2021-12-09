@@ -466,6 +466,12 @@ Yet, this is not always necessary; when we traverse a list we are more concerned
 1. A stream is either empty or
 2. A *thunk wrapping a value* combined with a *thunk wrapping another stream*.
 
+```rkt
+; infinite stream
+(define (repeat n)
+  (cons (thunk n) (repeat n)))
+```
+
 Notice that thunks are used to delay the evaluation of the elements in the stream until they are called.  We say that **streams decouple the creation of data from the consumption of said data**.
 
 ```rkt
@@ -489,9 +495,9 @@ head x
 
 ## Self-Updating Streams
 
-We've established that streams are mainly focused on the consumption of data, rather that its creation.  So we would like to create some sort of "iteration" capability for our Racket stream.  But I thought Racket doesn't support mutation? This is precisely why a function won't do.
+We've established that streams are mainly focused on the consumption of data, rather that its creation.  So we would like to create some sort of "iteration" capability for our Racket stream.  But I thought Racket doesn't support mutation? It does in a way, but this is precisely why a function won't do. If I try to  modify a parameter value, it'll only do so within the function - i.e. if you mutate the stream within the function, it won't mutate your stream globally.
 
-We are going to define a macro called `next!` (the `!` is used to denote mutation) that does the following:
+We are going to define a macro called `next!` (the `!` is used to denote mutation) so that we actually get the re-writing behaviour that we need.  This macro does the following:
 
 - If the stream is non-empty, update the stream to `s-rest` and return `s-first`
 - If the stream is empty, return the symbol `'DONE`.
@@ -544,6 +550,16 @@ Racket *reifies* first-class continuations, meaning that the program can access 
 1. The continuation of the `shift` expression is bound to `<id>`.  We will used `k` as the conventional name for this variable.
 2. The `<body>` is evaluated, with `<id>` in scope.
 3. The current continuation `k` is discarded, and the value of the last expression in `<body> ...` is returned.
+
+It is important to note that `shift` does not automatically apply its own continuation!  If we want to apply `k`, we need to do so explicitly.
+
+```rkt
+(+ 2 (shift k (k 3))) ; k = (+ 2 _)
+; 5
+
+(+ 2 (shift k (3))) ; k = (+ 2 _) but is not used
+; 3
+```
 
 However, `shift` captures the *entire continuation*, beyond what we may want in  most cases. We can place a sort of breakpoint that `shift` is not allowed to go beyond.
 
