@@ -26,7 +26,7 @@
 ; GOAL: (make-stream <expr> ...) -> stream
 (define-syntax make-stream
     (syntax-rules ()
-        [(make-stream <expr>) (s-cons <expr> 's-null)]
+        [(make-stream) 's-null]
         [(make-stream <expr> <other-expr> ...)
         (s-cons <expr> (make-stream <other-expr> ...))]))
 
@@ -52,26 +52,54 @@
             [(equal? n 0) s-null]
             [else (s-cons (s-first s) (s-take (s-rest s) (- n 1)))]))
 
+; the iterator next! macro
+; takes in a thunk that evaluates to a stream
+; (define-syntax next!
+;     (syntax-rules ()
+;         [(next! <s>)
+;         (if (s-null? (<s>))
+;             'DONE
+;             (let* ([temp <s>])
+;                 (begin
+;                     (set! <s> (cdr (<s>)))
+;                     (s-first (<s>)))))]))
+(define-syntax next!
+  (syntax-rules ()
+    [(next! <g>)  ; in this version of next!, <g> is a thunk that evaluates to a stream
+     (let* ([stream (<g>)]) ; first, evaluate <g>
+       (if (s-null? stream)
+           'DONE
+           (begin
+               (set! <g> (cdr stream))
+               ((car stream)))))])) ; use cdr rather than s-rest
 
 ; Applies k to all elements in the stream
-(define (map-stream k lst)
+(define (map-stream f lst)
     (if (empty? lst)
         s-null
-        (s-cons (k (first lst)) (map-stream k (rest lst)))))
+        (s-cons (f (first lst)) (map-stream f (rest lst)))))
 
-; the iterator next! macro
-(define-syntax next!
+; STEP 1: Assume k always return a stream
+(define (s-append s t)
+    (cond [(s-null? s) (t)]
+    [(pair? s) (s-cons (s-first s) (s-append (s-rest s) t))]
+    [else (s-cons s (t))]))
+
+(define (s-append-map k lst)
+    (if (empty? lst)
+        s-null
+        (s-append (k (first lst))
+            (thunk (s-append-map k (rest lst))))))
+
+; TODO: Implement singleton
+(define (singleton x) (make-stream x))
+
+; amb operator
+(define (-< . options)
+    (shift k (s-append-map k options)))
+
+(define-syntax do/-<
     (syntax-rules ()
-        [(next! <s>)
-        (if (s-null? <s>)
-            'DONE
-            (let* ([temp <s>])
-                (begin
-                    (set! <s> (s-rest <s>))
-                    (s-first temp))))]))
+        [(do/-< <expr>) (thunk (reset (singleton <expr>)))]))
 
-; naive amb operator
-(define (-< . lst)
-    (shift k (map-stream k lst)))
-
-(define g (reset (+ 1 (-< 3 4))))
+(define g (do/-< (/ 1 (-< 1 2 0 4 5))))

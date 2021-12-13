@@ -21,6 +21,7 @@
 - [Appendix](#appendix)
   - [A New Approach to OOP](#a-new-approach-to-oop)
   - [The Ambiguous Choice Operator `-<`](#the-ambiguous-choice-operator--)
+    - [Branching Choices](#branching-choices)
 
 ---
 
@@ -636,7 +637,7 @@ While this is very cool, Racket macros will allow us to emulate a "class" in a w
 
 ## The Ambiguous Choice Operator `-<`
 
-The ambiguous operator `-<`  is used to generate data and denote possible choices of values.  It takes an arbitrary number of argument subexpressions, and returns a stream of possible values for the whole `-<` expression.
+The ambiguous operator `-<`  is used to make a non-deterministic choice, and generate a stream of answers.  It takes an arbitrary number of argument subexpressions, and returns a stream of possible values for the whole expression it is found in.
 
 The idea is to provide a number of possible values for an expression in the code.  So we would like the `-<` operator to not only store a stream of choices, but also apply the computational context surrounding it.  For example:
 
@@ -644,7 +645,14 @@ The idea is to provide a number of possible values for an expression in the code
 (+ 10 (-< 1 2 (+ 3 4))) -> stream (11, 12, 17)
 ```
 
-This computational context is just the continuation of `-<`.  Essentially we want to map the continuation `k` across all the values contained by `-<`, and return a stream of the mapped values.
+Essentially we want to map the continuation `k` across all the values contained by `-<`, and return a stream of the mapped values.
+
+> The `.` operator in Racket is used for functions that take an arbitrary number of arguments.  It simply stores all the arguments passed to a function in a list instead of storing it as a single value.
+> ```rkt
+> (define (f . x) x)
+> (f 3)
+> ; '(3)
+> ```
 
 ```rkt
 ; Applies k to all elements in the stream
@@ -654,8 +662,8 @@ This computational context is just the continuation of `-<`.  Essentially we wan
         (s-cons (k (first lst)) (map-stream k (rest lst)))))
 
 ; naive amb operator
-(define (-< . lst)
-    (shift k (map-stream k lst)))
+(define (-< . options)
+    (shift k (map-stream k options)))
 ```
 ```rkt
 (define g (reset (+ 1 (-< 3 4))))
@@ -664,6 +672,51 @@ This computational context is just the continuation of `-<`.  Essentially we wan
 ; 4
 (next! g)
 ; 5
-(next! g)
-; 'DONE
 ```
+
+### Branching Choices
+
+As soon as we have two `-<` interacting with each other, we lose our desired behaviour because we are trying to apply a stream as the continuation to another stream.  This gives us a stream of streams, rather than just values.
+
+```rkt
+(define g (reset (+ (-< 1 2) (-< 3 4))))
+(next! g)
+; #<procedure>
+```
+
+The problem here is that `k` (the function we are mapping over the stream) sometimes returns a single stream and sometimes returns a list of streams.  If we can have `k` always return a list of streams, then we can just `s-append` all the results into a single stream.  **The idea is to change the way we use `-<` so that the continuation `k` always returns a stream.**
+
+1. Assume that `k` always returns a stream of results.
+2. Wrap the expression containing the `-<` in a `make-stream` function (this will wrap the entire expression in a stream so that the continuation `k` always maps elements to a stream), then append the streams during the mapping with `s-append-map`.
+
+After we implement these two functions, our `-<` will look like this:
+
+```rkt
+(define (-< . options)
+    (shift k (s-append-map k options)))
+```
+
+```rkt
+; STEP 1: Assume k always return a stream
+(define (s-append s t)
+    (cond [(s-null? s) (t)]
+    [(pair? s) (s-cons (s-first s) (s-append (s-rest s) t))]))
+
+(define (s-append-map k lst)
+    (if (empty? lst)
+        s-null
+        (s-append (k (first lst))
+            (thunk (s-append-map k (rest lst))))))
+
+; STEP 2: Wrap every expression with -< in a stream
+; make-stream will not work because it is a macro, expansion happens 
+; before the call to -< is evaluated. we actually need eager evaluation
+(define (singleton x) (make-stream x))
+
+; wrapping everything in (reset (singleton (...))) is annoying. write macro
+(define-syntax do/-<
+    (syntax-rules ()
+        [(do/-< <expr>) (reset (singleton <expr>))]))
+```
+
+
